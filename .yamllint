@@ -1,0 +1,20 @@
+---
+# See: https://yamllint.readthedocs.io/en/stable/
+
+extends: default
+
+rules:
+  comments:
+    min-spaces-from-content: 1
+
+  document-end: disable
+
+  line-length:
+    level: warning
+    max: 80
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
+
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true

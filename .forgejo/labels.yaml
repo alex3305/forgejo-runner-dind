@@ -1,0 +1,30 @@
+---
+- name: ci
+  color: "705dfb"
+  description: Continuous integration and deployment
+- name: documentation
+  color: "0d6b74"
+  description: Anything regarding documentation
+- name: epic
+  color: "3f4d9c"
+  description: Anything that is broader than the scope of a single issue
+- name: enhancement
+  color: "86b7e9"
+  description: A new feature or improvement
+- name: issue
+  color: "d53c4d"
+  description: Something is not working due to a bug or issue
+- name: invalid
+  color: "111111"
+  description: Something that wasn't useful after all...
+- name: maintenance
+  color: "fff59d"
+  description: Boring tasks that needs to be done
+- name: security
+  color: "e3cea5"
+  description: All things security
+- name: external
+  color: "2b3137"
+  description: >-
+    An external dependency. For instance when having to wait for a third party
+    developer to resolve an issue.
