@@ -6,7 +6,7 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 
-[*.{j2,j2,json,md,mjs,sh,ts,yaml,yml}]
+[*.{j2,json,md,mjs,sh,ts,yaml,yml}]
 indent_style = space
 indent_size = 2
 
@@ -15,4 +15,7 @@ indent_style = space
 indent_size = 2
 
 [.*{version,VERSION,rc}]
+insert_final_newline = false
+
+[**/notification-fd]
 insert_final_newline = false
