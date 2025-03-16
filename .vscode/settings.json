@@ -4,6 +4,9 @@
     "forgejo"
   ],
   "cSpell.ignoreWords": [
-    "svscan"
+    "notifyoncheck",
+    "svscan",
+    "svscanctl",
+    "svwait"
   ]
 }

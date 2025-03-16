@@ -23,7 +23,7 @@ if [[ ! -s .runner ]]; then
 
   # The point of this loop is to make it simple, when running both forgejo-runner and gitea in docker,
   # for the forgejo-runner to wait a moment for Forgejo to become available before erroring out.  Within
-  # the context of a single docker-compose, something similar could be done via healthchecks, but
+  # the context of a single docker-compose, something similar could be done via health checks, but
   # this is more flexible.
   while [[ $success -eq 0 ]] && [[ $try -lt ${MAX_REG_ATTEMPTS:-10} ]]; do
     forgejo-runner register \

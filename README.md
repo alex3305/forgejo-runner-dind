@@ -91,28 +91,6 @@ docker run -t --rm \
         generate-config > /opt/forgejo/runner/config.yaml
 ```
 
-#### Docker Host
-
-When running this container as another user than the default `1000` it is necessary to also override the Docker Host variable.
-
-```yaml
-services:
-  forgejo-runner:
-    image: git.1d.lol/containers/forgejo-runner-dind:latest
-    privileged: true
-    volumes:
-      - /opt/forgejo/runner:/data
-    environment:
-      DOCKER_HOST: unix:///run/user/1234/docker.sock
-      FORGEJO_INSTANCE_URL: https://code.example.com
-      FORGEJO_RUNNER_NAME: my-second-forgejo-runner
-      FORGEJO_REGISTRATION_TOKEN: JLcy4PhU8wMBmt2mpu5BmW1OqDVlojtPzmQl9mdC
-    user: 1234:1234
-```
-
-> [!WARNING]
-> This is not recommended because of compatibility or other unexpected issues.
-
 ## License
 
 This repository is licensed under the [MIT License](LICENSE.md) unless otherwise stated.
