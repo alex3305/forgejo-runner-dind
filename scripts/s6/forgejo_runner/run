@@ -2,8 +2,4 @@
 
 s6-svwait -U /etc/s6/docker
 
-# Symlink Docker socket for compatibility
-mkdir -p /var/run/
-ln -s /run/user/1000/docker.sock /var/run/docker.sock
-
 exec run.sh
