@@ -71,7 +71,7 @@ The registration token is used to register Forgejo Runner to Forgejo. This works
 > [!NOTE]
 > After registration, the Forgejo Instance URL and Registration Token will be stored in a `/data/.runner` file. After this file is created, the provided environment variables will not be used.
 
-#### Configuration file
+### Configuration file
 
 It is also possible to generate a Forgejo Runner configuration file. This provides far more customization and options than just using the runner.
 
@@ -94,6 +94,23 @@ docker run -t --rm \
         generate-config > /opt/forgejo/runner/config.yaml
 ```
 
+#### Required variables
+
+Within the configuration file it is required for the following options to be set:
+
+```yaml
+container:
+  # Whether to use privileged mode or not when launching task containers (privileged mode is required for Docker-in-Docker).
+  privileged: true
+  # overrides the docker client host with the specified one.
+  # If "-" or "", an available docker host will automatically be found.
+  # If "automount", an available docker host will automatically be found and mounted in the job container (e.g. /var/run/docker.sock).
+  # Otherwise the specified docker host will be used and an error will be returned if it doesn't work.
+  docker_host: "automount"
+```
+
+Failing to do so may lead to unexpected results. For instance in jobs not starting or unable to access the Docker daemon within a job.
+
 ## Development
 
 Building the container image is done with BuildKit:
@@ -108,8 +125,33 @@ After which testing can be done by starting the created container image:
 docker run --rm -it --privileged forgejo-runner-dind
 ```
 
+### Running a minimal container
+
+For testing it can be useful to run a minimal container.
+
+```bash
+docker run -it --rm --privileged --name forgejo-runner-2 \
+      --network forgejo-overlay \
+      -v /opt/appdata/forgejo/runner2:/data \
+      -e CONFIG_FILE=/data/config.yaml \
+      git.1d.lol/containers/forgejo-runner-dind:latest
+```
+
+Where I have copied my primary runner configuration to test with. It is required to stop the primary Forgejo runner when doing so.
+
 > [!TIP]
 > Bash is available and can be used as an entrypoint
+
+### Logging
+
+It is advised to use trace or debug logging set in the configuration file for debugging.
+
+```yaml
+log:
+  # The level of logging, can be trace, debug, info, warn, error, fatal
+  level: trace
+  job_level: trace
+```
 
 ## License
 
