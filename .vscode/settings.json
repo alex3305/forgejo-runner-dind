@@ -1,7 +1,10 @@
 {
   "cSpell.words": [
+    "buildx",
+    "codeberg",
     "dind",
-    "forgejo"
+    "forgejo",
+    "Gitea"
   ],
   "cSpell.ignoreWords": [
     "notifyoncheck",

@@ -44,6 +44,9 @@ networks:
     name: forgejo
 ```
 
+> [!NOTE]
+> Privileged mode is required for Docker in Docker to function properly. This is explained in [docker-library/docker#151](https://github.com/docker-library/docker/issues/151#issuecomment-483185972) and [docker-library/docker#281](https://github.com/docker-library/docker/issues/281#issuecomment-744766015). However this is still a security issue thats need to treated appropriately. 
+
 ### Environment variables
 
 | Variable                     | Required |               Default               | Description                                                                                             |
@@ -90,6 +93,23 @@ docker run -t --rm \
         git.ram.io/containers/forgejo-runner-dind:latest \
         generate-config > /opt/forgejo/runner/config.yaml
 ```
+
+## Development
+
+Building the container image is done with BuildKit:
+
+```bash
+docker buildx build . -t forgejo-runner-dind
+```
+
+After which testing can be done by starting the created container image:
+
+```bash
+docker run --rm -it --privileged forgejo-runner-dind
+```
+
+> [!TIP]
+> Bash is available and can be used as an entrypoint
 
 ## License
 

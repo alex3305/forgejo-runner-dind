@@ -11,11 +11,12 @@ COPY scripts/s6 /etc/s6
 
 ENV DOCKER_HOST=unix:///run/user/1000/docker.sock
 
-RUN mkdir -p /data \
+RUN mkdir -p /data /var/run/ \
     && chmod a+x /usr/local/bin/forgejo-runner \
     && chmod a+x /usr/local/bin/run.sh \
     && chmod -R a+x /etc/s6 \
-    && chown -R rootless:rootless /etc/s6 /data
+    && chown -R rootless:rootless /etc/s6 /data \
+    && ln -s /run/user/1000/docker.sock /var/run/docker.sock
 
 VOLUME /data
 USER rootless
