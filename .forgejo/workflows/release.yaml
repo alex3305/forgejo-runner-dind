@@ -108,10 +108,9 @@ jobs:
         run: |
           git tag -fa "$MINOR_TAG" -m "$MINOR_TAG"
           git tag -fa "$MAJOR_TAG" -m "$MAJOR_TAG"
-
           git push -f origin --tags
         env:
           GIT_COMMITTER_NAME: Actions Bot
           GIT_COMMITTER_EMAIL: actions@1d.lol
-          MINOR_VERSION: ${{ needs.version.outputs.minor_version }}
-          MAJOR_VERSION: ${{ needs.version.outputs.major_version }}
+          MINOR_TAG: ${{ needs.version.outputs.minor_version }}
+          MAJOR_TAG: ${{ needs.version.outputs.major_version }}
