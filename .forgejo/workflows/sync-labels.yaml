@@ -28,7 +28,7 @@ jobs:
 
       - name: 🏷️ Run Label Sync
         # yamllint disable-line rule:line-length
-        uses: https://git.ram.io/actions/action-label-sync@0906b5c8c8a610652f6057bb587cd36ec2ca399e # v1
+        uses: https://1d.lol/actions/action-label-sync@0906b5c8c8a610652f6057bb587cd36ec2ca399e # v1
         with:
           labels_file: .forgejo/labels.yaml
           delete_other_labels: true

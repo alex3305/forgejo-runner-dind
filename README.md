@@ -10,9 +10,9 @@
 
 <p align="center">
   <br/>
-  <img src="https://git.ram.io/containers/forgejo-runner-dind/actions/workflows/build.yaml/badge.svg" alt="Build" title="Build status">
-  <img src="https://git.ram.io/containers/forgejo-runner-dind/actions/workflows/lint.yaml/badge.svg" alt="Lint" title="Lint status">
-  <img src="https://git.ram.io/containers/forgejo-runner-dind/actions/workflows/sync-labels.yaml/badge.svg" alt="Sync Labels" title="Label Sync result">
+  <img src="https://1d.lol/containers/forgejo-runner-dind/actions/workflows/build.yaml/badge.svg" alt="Build" title="Build status">
+  <img src="https://1d.lol/containers/forgejo-runner-dind/actions/workflows/lint.yaml/badge.svg" alt="Lint" title="Lint status">
+  <img src="https://1d.lol/containers/forgejo-runner-dind/actions/workflows/sync-labels.yaml/badge.svg" alt="Sync Labels" title="Label Sync result">
 </p>
 
 ## Usage
@@ -27,7 +27,7 @@ services:
       internal:
 
   forgejo-runner:
-    image: git.ram.io/containers/forgejo-runner-dind:latest
+    image: 1d.lol/containers/forgejo-runner-dind:latest
     privileged: true
     network:
       internal:
@@ -79,7 +79,7 @@ It is also possible to generate a Forgejo Runner configuration file. This provid
 docker run -t --rm \
         --name forgejo-config-generator \
         --entrypoint forgejo-runner \
-        git.ram.io/containers/forgejo-runner-dind:latest \
+        1d.lol/containers/forgejo-runner-dind:latest \
         generate-config
 ```
 
@@ -90,7 +90,7 @@ mkdir -p /opt/forgejo/runner/
 docker run -t --rm \
         --name forgejo-config-generator \
         --entrypoint forgejo-runner \
-        git.ram.io/containers/forgejo-runner-dind:latest \
+        1d.lol/containers/forgejo-runner-dind:latest \
         generate-config > /opt/forgejo/runner/config.yaml
 ```
 
@@ -134,7 +134,7 @@ docker run -it --rm --privileged --name forgejo-runner-2 \
       --network forgejo-overlay \
       -v /opt/appdata/forgejo/runner2:/data \
       -e CONFIG_FILE=/data/config.yaml \
-      git.ram.io/containers/forgejo-runner-dind:latest
+      1d.lol/containers/forgejo-runner-dind:latest
 ```
 
 Where I have copied my primary runner configuration to test with. It is required to stop the primary Forgejo runner when doing so.
