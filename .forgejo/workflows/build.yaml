@@ -40,5 +40,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ${{ vars.REGISTRY }}/${{ gitea.repository }}:latest
+          tags: ${{ vars.REGISTRY }}/${{ gitea.repository }}:latest
