@@ -1,5 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>renovate-bot/renovate"],
-  "assigneesFromCodeOwners": true
+  "extends": ["local>renovate/renovate", "schedule:daily"]
 }
