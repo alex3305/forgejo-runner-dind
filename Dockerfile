@@ -1,4 +1,4 @@
-FROM code.forgejo.org/forgejo/runner:6.2.2 AS forgejo-runner
+FROM code.forgejo.org/forgejo/runner:6.3.0 AS forgejo-runner
 FROM docker:28.0.2-dind-rootless AS dind-rootless
 
 USER root
