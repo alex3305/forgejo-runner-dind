@@ -3,21 +3,33 @@ FROM docker:28.1.1-dind-rootless AS dind-rootless
 
 USER root
 
-RUN apk add --no-cache s6 bash git
-
 COPY --from=forgejo-runner /bin/forgejo-runner /usr/local/bin/forgejo-runner
-COPY scripts/run.sh /usr/local/bin/run.sh
+
 COPY scripts/s6 /etc/s6
+COPY scripts/s6-init /etc/s6-init
+COPY scripts/entrypoint.sh /entrypoint.sh
 
 ENV DOCKER_HOST=unix:///run/user/1000/docker.sock
 
-RUN mkdir -p /data /var/run/ \
-    && chmod a+x /usr/local/bin/forgejo-runner \
-    && chmod a+x /usr/local/bin/run.sh \
-    && chmod -R a+x /etc/s6 \
-    && chown -R rootless:rootless /etc/s6 /data
+RUN apk add --no-cache s6 bash git \
+    && \
+    mkdir -p /data \
+             /var/run/ \
+             /opt/containerd \
+    && \
+    chmod a+x /usr/local/bin/forgejo-runner \
+              /entrypoint.sh \
+    && \
+    chmod -R a+rx /etc/s6 \
+                  /etc/s6-init \
+    && \
+    chown -R rootless:rootless /etc/s6 \
+                               /etc/s6-init \
+                               /data \
+                               /opt/containerd \
+                               /entrypoint.sh
 
 VOLUME /data
 USER rootless
 
-ENTRYPOINT ["s6-svscan", "/etc/s6"]
+ENTRYPOINT ["/entrypoint.sh"]
