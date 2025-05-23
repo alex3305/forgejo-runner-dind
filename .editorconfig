@@ -17,5 +17,5 @@ indent_size = 2
 [.*{version,VERSION,rc}]
 insert_final_newline = false
 
-[**/notification-fd]
+[**/{notification-fd,max-death-tally}]
 insert_final_newline = false

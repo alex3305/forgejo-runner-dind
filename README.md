@@ -56,7 +56,6 @@ networks:
 | `FORGEJO_RUNNER_NAME`        |    ✅    |             _hostname_              | Name of the Forgejo runner. This defaults to the hostname of the container.                             |
 | `CONFIG_FILE`                |    ❌    |                                     | The optional config file that is used for this runner. Must be a path that is mounted in the container. |
 | `DOCKER_HOST`                |    ❌    | `unix:///run/user/1000/docker.sock` | The Docker socket that Forgejo Runner connects to.                                                        |
-| `MAX_REG_ATTEMPTS`           |    ❌    |                 10                  | Maximum registration attempts                                                                           |
 | `FORGEJO_RUNNER_LABELS`      |    ❌    |                                     | Optional Forgejo runner labels                                                                          |
 | `EXTRA_ARGS`                 |    ❌    |                                     | Optional additional arguments                                                                           |
 
