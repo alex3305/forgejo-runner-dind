@@ -16,6 +16,7 @@ RUN apk add --no-cache s6 bash git \
     mkdir -p /data \
              /var/run/ \
              /opt/containerd \
+             /tmp/hostedtoolcache \
     && \
     chmod a+x /usr/local/bin/forgejo-runner \
               /entrypoint.sh \
@@ -27,6 +28,7 @@ RUN apk add --no-cache s6 bash git \
                                /etc/s6-init \
                                /data \
                                /opt/containerd \
+                               /tmp \
                                /entrypoint.sh
 
 VOLUME /data
