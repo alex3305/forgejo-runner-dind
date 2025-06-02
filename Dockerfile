@@ -6,8 +6,8 @@ USER root
 COPY --from=forgejo-runner /bin/forgejo-runner /usr/local/bin/forgejo-runner
 
 COPY scripts/s6 /etc/s6
-COPY scripts/s6-init /etc/s6-init
 COPY scripts/entrypoint.sh /entrypoint.sh
+COPY scripts/register.sh /register.sh
 
 ENV DOCKER_HOST=unix:///run/user/1000/docker.sock
 
@@ -20,16 +20,16 @@ RUN apk add --no-cache s6 bash git \
     && \
     chmod a+x /usr/local/bin/forgejo-runner \
               /entrypoint.sh \
+              /register.sh \
     && \
     chmod -R a+rx /etc/s6 \
-                  /etc/s6-init \
     && \
     chown -R rootless:rootless /etc/s6 \
-                               /etc/s6-init \
                                /data \
                                /opt/containerd \
                                /tmp \
-                               /entrypoint.sh
+                               /entrypoint.sh \
+                               /register.sh
 
 VOLUME /data
 USER rootless
