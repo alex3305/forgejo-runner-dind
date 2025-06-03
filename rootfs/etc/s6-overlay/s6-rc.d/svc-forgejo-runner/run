@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-s6-svwait -t 30000 -U /etc/s6/docker
-
 CONFIG_ARG=""
 if [[ ! -z "${CONFIG_FILE}" ]]; then
   CONFIG_ARG="--config ${CONFIG_FILE}"

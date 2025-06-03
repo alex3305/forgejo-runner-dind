@@ -14,8 +14,5 @@ indent_size = 2
 indent_style = space
 indent_size = 2
 
-[.*{version,VERSION,rc}]
-insert_final_newline = false
-
-[**/{notification-fd,max-death-tally}]
+[rootfs/etc/s6-overlay/s6-rc.d/**]
 insert_final_newline = false

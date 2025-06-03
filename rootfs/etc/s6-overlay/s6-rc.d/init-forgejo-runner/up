@@ -1,0 +1,2 @@
+if { eltest ! -s /data/.runner }
+  /etc/s6-overlay/scripts/register-runner.sh
