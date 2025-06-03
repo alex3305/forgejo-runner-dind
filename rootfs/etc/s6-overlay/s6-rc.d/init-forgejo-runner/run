@@ -9,13 +9,17 @@ NC='\033[0m' # No Color
 # Assert required Forgejo Instance URL variable
 if [[ -z "${FORGEJO_INSTANCE_URL}" ]]; then
   echo -e "${RED}Required Forgejo Instance URL parameter missing...${NC}"
-  exit 255
+  
+  echo 255 > /run/s6-linux-init-container-results/exitcode
+  exec /run/s6/basedir/bin/halt
 fi
 
 # Assert required Forgejo Registration Token variable
 if [[ -z "${FORGEJO_REGISTRATION_TOKEN}" ]]; then
   echo -e "${RED}Required Forgejo Registration Token parameter missing...${NC}"
-  exit 255
+  
+  echo 255 > /run/s6-linux-init-container-results/exitcode
+  exec /run/s6/basedir/bin/halt
 fi
 
 HOSTNAME=$(hostname)
@@ -57,8 +61,9 @@ done
 
 if [[ $REG_SUCCESS -eq 1 ]]; then
   echo -e "${GREEN}Forgejo Runner Registration completed successfully!${NC}"
-  exit 0
 else
   echo -e "${RED}Could not register Forgejo Runner to $FORGEJO_INSTANCE_URL after $REG_ATTEMPTS attempts.${NC}"
-  exit 1
+  
+  echo 1 > /run/s6-linux-init-container-results/exitcode
+  exec /run/s6/basedir/bin/halt
 fi

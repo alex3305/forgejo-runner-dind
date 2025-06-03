@@ -1,10 +1,10 @@
 FROM code.forgejo.org/forgejo/runner:6.3.1 AS forgejo-runner
 FROM docker:28.2.2-dind-rootless AS dind-rootless
 
-FROM alpine:3.22
-
 # renovate: datasource=github-releases depName=just-containers/s6-overlay
 ARG S6_OVERLAY_VERSION=3.2.1.0
+
+USER root
 
 # Add S6 overlay (https://github.com/just-containers/s6-overlay)
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
@@ -16,22 +16,12 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
 # Add Forgejo Runner from official OCI
 COPY --from=forgejo-runner /bin/forgejo-runner /usr/local/bin/forgejo-runner
 
-# Add Docker from official image
-COPY --from=dind-rootless /usr/local/bin/ /usr/local/bin/
-
 # Add S6 scripts
 COPY rootfs/ /
 
-# Create rootless user
-RUN set -eux; \
-        adduser -h /home/rootless -g 'Rootless' -D -u 1000 rootless; \
-        echo 'rootless:100000:65536' >> /etc/subuid; \
-	    echo 'rootless:100000:65536' >> /etc/subgid
-
-RUN apk add --no-cache bash git \
+RUN apk add --no-cache bash git iptables \
     && \
     mkdir -p /data \
-             /home/rootless/.local/share/docker \
              /opt/containerd \
              /tmp/hostedtoolcache \
              /var/run \
@@ -44,8 +34,13 @@ RUN apk add --no-cache bash git \
                                /opt/containerd \
                                /tmp
 
+# Exit the container when services don't go up
+ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+
+# Keep environment variables for dind
+ENV S6_KEEP_ENV=1
+
 VOLUME /data
-VOLUME /home/rootless/.local/share/docker
 
 USER rootless
 
