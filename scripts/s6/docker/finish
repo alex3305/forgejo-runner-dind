@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-exec s6-svscanctl -t /etc/s6

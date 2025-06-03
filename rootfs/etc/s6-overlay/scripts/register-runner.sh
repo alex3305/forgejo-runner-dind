@@ -1,21 +1,24 @@
 #!/usr/bin/env bash
 
+# Set Global Logging Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 ORANGE='\033[0;33m'
 NC='\033[0m' # No Color
 
-HOSTNAME=$(hostname)
-
+# Assert required Forgejo Instance URL variable
 if [[ -z "${FORGEJO_INSTANCE_URL}" ]]; then
   echo -e "${RED}Required Forgejo Instance URL parameter missing...${NC}"
   exit 255
 fi
 
+# Assert required Forgejo Registration Token variable
 if [[ -z "${FORGEJO_REGISTRATION_TOKEN}" ]]; then
   echo -e "${RED}Required Forgejo Registration Token parameter missing...${NC}"
   exit 255
 fi
+
+HOSTNAME=$(hostname)
 
 CONFIG_ARG=""
 if [[ ! -z "${CONFIG_FILE}" ]]; then
