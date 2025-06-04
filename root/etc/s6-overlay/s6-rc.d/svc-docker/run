@@ -4,4 +4,5 @@
 # Enable Tini subreaping, because dind is running within s6
 export TINI_SUBREAPER=1
 
-exec /usr/local/bin/dockerd-entrypoint.sh
+exec s6-notifyoncheck -s 5000 -T 60000 -t 1000 -w 2000 -n 30 \
+                      /usr/local/bin/dockerd-entrypoint.sh

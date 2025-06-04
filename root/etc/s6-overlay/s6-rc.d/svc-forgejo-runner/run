@@ -10,5 +10,4 @@ fi
 unset FORGEJO_REGISTRATION_TOKEN
 
 cd /data
-forgejo-runner daemon ${CONFIG_ARG}
-# TODO CHeck this https://github.com/vegardit/docker-gitea-act-runner/blob/main/image/run_runner.sh#L96
+exec forgejo-runner daemon ${CONFIG_ARG}
