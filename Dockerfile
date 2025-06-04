@@ -34,12 +34,14 @@ RUN apk add --no-cache bash git iptables \
                                /opt/containerd \
                                /tmp
 
+# TODO Maybe remove variables below??
 # Exit the container when services don't go up
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 
 # Keep environment variables for dind
 ENV S6_KEEP_ENV=1
 
+ENV DOCKER_HOST=unix:///run/user/1000/docker.sock
 VOLUME /data
 
 USER rootless
