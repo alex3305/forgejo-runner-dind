@@ -50,6 +50,6 @@ HEALTHCHECK --interval=60s \
             --timeout=30s \
             --start-period=5s \
             --retries=3 \
-            CMD ["/command/s6-svstat /etc/s6-overlay/s6-rc.d/svc-forgejo-runner"]
+            CMD ["/command/s6-svstat /var/run/s6-rc/servicedirs/svc-forgejo-runner"]
 
 ENTRYPOINT ["/init"]
