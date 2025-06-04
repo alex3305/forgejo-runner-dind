@@ -1,4 +1,0 @@
-#!/usr/bin/execlineb -S0
-
-echo "$0" > /run/s6-linux-init-container-results/exitcode
-exec /run/s6/basedir/bin/halt

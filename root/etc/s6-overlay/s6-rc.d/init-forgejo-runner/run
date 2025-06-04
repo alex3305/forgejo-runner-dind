@@ -1,44 +1,45 @@
-#!/usr/bin/env bash
+#!/command/with-contenv bash
+# shellcheck shell=bash
 
-# Set Global Logging Colors
+NC='\033[0m' # No Color
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 ORANGE='\033[0;33m'
-NC='\033[0m' # No Color
 
-# Assert required Forgejo Instance URL variable
-if [[ -z "${FORGEJO_INSTANCE_URL}" ]]; then
-  echo -e "${RED}Required Forgejo Instance URL parameter missing...${NC}"
-  
-  echo 255 > /run/s6-linux-init-container-results/exitcode
-  exec /run/s6/basedir/bin/halt
+if [[ -s /data/.runner ]]; then
+  printf "${GREEN}Forgejo Runner already registered!\n${NC}"
+  exit 0
 fi
 
-# Assert required Forgejo Registration Token variable
+# Continue with registration...
+
+if [[ -z "${FORGEJO_INSTANCE_URL}" ]]; then
+  printf "${RED}Required Forgejo Instance URL parameter missing...\n${NC}"
+  exit 126
+fi
+
 if [[ -z "${FORGEJO_REGISTRATION_TOKEN}" ]]; then
-  echo -e "${RED}Required Forgejo Registration Token parameter missing...${NC}"
-  
-  echo 255 > /run/s6-linux-init-container-results/exitcode
-  exec /run/s6/basedir/bin/halt
+  printf "${RED}Required Forgejo Registration Token parameter missing...\n${NC}"
+  exit 127
 fi
 
 HOSTNAME=$(hostname)
-
 CONFIG_ARG=""
-if [[ ! -z "${CONFIG_FILE}" ]]; then
-  CONFIG_ARG="--config ${CONFIG_FILE}"
+EXTRA_ARGS=""
+
+if [[ ! -z "${FORGEJO_CONFIG_FILE}" ]]; then
+  CONFIG_ARG="--config ${FORGEJO_CONFIG_FILE}"
 fi
 
-EXTRA_ARGS=""
 if [[ ! -z "${FORGEJO_RUNNER_LABELS}" ]]; then
-  EXTRA_ARGS="${EXTRA_ARGS} --labels ${FORGEJO_RUNNER_LABELS}"
+  EXTRA_ARGS="--labels ${FORGEJO_RUNNER_LABELS}"
 fi
 
 cd /data
 
 REG_TRY=0
 REG_SUCCESS=0
-REG_ATTEMPTS=${MAX_REG_ATTEMPTS:-5}
+REG_ATTEMPTS=${FORGEJO_RUNNER_MAX_REG_ATTEMPTS:-5}
 
 while [[ $REG_SUCCESS -eq 0 ]] && [[ $REG_TRY -lt $REG_ATTEMPTS ]]; do
   forgejo-runner register \
@@ -51,19 +52,24 @@ while [[ $REG_SUCCESS -eq 0 ]] && [[ $REG_TRY -lt $REG_ATTEMPTS ]]; do
 
   if [[ $? -eq 0 ]]; then
     REG_SUCCESS=1
+
+    rm -f /tmp/reg.log
     break
   else
     REG_TRY=$((REG_TRY + 1))
-    echo -e "${ORANGE}Retrying Forgejo Runner Registration to $FORGEJO_INSTANCE_URL in 5 seconds... Registration attempt $REG_TRY/$REG_ATTEMPTS${NC}"
+
+    printf "${ORANGE}Retrying Forgejo Runner Registration to $FORGEJO_INSTANCE_URL in 5 seconds... "
+    printf "Registration attempt $REG_TRY/$REG_ATTEMPTS${NC}\n"
     sleep 5
   fi
 done
 
 if [[ $REG_SUCCESS -eq 1 ]]; then
   echo -e "${GREEN}Forgejo Runner Registration completed successfully!${NC}"
+
+  exit 0
 else
   echo -e "${RED}Could not register Forgejo Runner to $FORGEJO_INSTANCE_URL after $REG_ATTEMPTS attempts.${NC}"
-  
-  echo 1 > /run/s6-linux-init-container-results/exitcode
-  exec /run/s6/basedir/bin/halt
+
+  exit 1
 fi

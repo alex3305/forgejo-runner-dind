@@ -17,7 +17,7 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
 COPY --from=forgejo-runner /bin/forgejo-runner /usr/local/bin/forgejo-runner
 
 # Add S6 scripts
-COPY rootfs/ /
+COPY root/ /
 
 RUN apk add --no-cache bash git iptables \
     && \
