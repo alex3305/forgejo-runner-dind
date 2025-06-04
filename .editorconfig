@@ -16,3 +16,6 @@ indent_size = 2
 
 [rootfs/etc/s6-overlay/s6-rc.d/**]
 insert_final_newline = false
+
+[root/etc/s6-overlay/s6-rc.d/**]
+insert_final_newline = false

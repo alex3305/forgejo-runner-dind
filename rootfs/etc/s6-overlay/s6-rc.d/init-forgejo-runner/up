@@ -1,2 +1,0 @@
-if { eltest ! -s /data/.runner }
-  /etc/s6-overlay/s6-rc.d/init-forgejo-runner/run

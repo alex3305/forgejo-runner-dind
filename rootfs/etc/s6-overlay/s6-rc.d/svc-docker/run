@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-# Enable subreaping, because dind is running within s6
-export TINI_SUBREAPER=1
-
-exec /usr/local/bin/dockerd-entrypoint.sh
