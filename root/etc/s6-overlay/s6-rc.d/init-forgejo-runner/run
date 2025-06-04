@@ -7,19 +7,19 @@ GREEN='\033[0;32m'
 ORANGE='\033[0;33m'
 
 if [[ -s /data/.runner ]]; then
-  printf "${GREEN}Forgejo Runner already registered!\n${NC}"
+  printf "forgejo-register: ${GREEN}Forgejo Runner already registered!\n${NC}"
   exit 0
 fi
 
 # Continue with registration...
 
 if [[ -z "${FORGEJO_INSTANCE_URL}" ]]; then
-  printf "${RED}Required Forgejo Instance URL parameter missing...\n${NC}"
+  printf "forgejo-register: ${RED}Required Forgejo Instance URL parameter missing...\n${NC}"
   exit 126
 fi
 
 if [[ -z "${FORGEJO_REGISTRATION_TOKEN}" ]]; then
-  printf "${RED}Required Forgejo Registration Token parameter missing...\n${NC}"
+  printf "forgejo-register: ${RED}Required Forgejo Registration Token parameter missing...\n${NC}"
   exit 127
 fi
 
@@ -58,18 +58,18 @@ while [[ $REG_SUCCESS -eq 0 ]] && [[ $REG_TRY -lt $REG_ATTEMPTS ]]; do
   else
     REG_TRY=$((REG_TRY + 1))
 
-    printf "${ORANGE}Retrying Forgejo Runner Registration to $FORGEJO_INSTANCE_URL in 5 seconds... "
+    printf "forgejo-register: ${ORANGE}Retrying Forgejo Runner Registration to $FORGEJO_INSTANCE_URL in 5 seconds... "
     printf "Registration attempt $REG_TRY/$REG_ATTEMPTS${NC}\n"
     sleep 5
   fi
 done
 
 if [[ $REG_SUCCESS -eq 1 ]]; then
-  echo -e "${GREEN}Forgejo Runner Registration completed successfully!${NC}"
+  echo -e "forgejo-register: ${GREEN}Forgejo Runner Registration completed successfully!${NC}"
 
   exit 0
 else
-  echo -e "${RED}Could not register Forgejo Runner to $FORGEJO_INSTANCE_URL after $REG_ATTEMPTS attempts.${NC}"
+  echo -e "forgejo-register: ${RED}Could not register Forgejo Runner to $FORGEJO_INSTANCE_URL after $REG_ATTEMPTS attempts.${NC}"
 
   exit 1
 fi
