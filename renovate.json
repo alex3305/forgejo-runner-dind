@@ -1,4 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>renovate/renovate", "schedule:daily"]
+  "extends": [
+    "local>renovate/renovate",
+    "local>renovate/renovate:dockerfileAnnotations",
+    "schedule:daily"
+  ]
 }
