@@ -41,8 +41,6 @@ USER rootless
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
     DOCKER_HOST=unix:///run/user/1000/docker.sock
 
-VOLUME /data
-
 HEALTHCHECK --interval=15s \
             --timeout=5s \
             --start-period=60s \
