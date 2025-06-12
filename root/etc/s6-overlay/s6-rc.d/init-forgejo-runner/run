@@ -7,7 +7,7 @@ GREEN='\033[0;32m'
 ORANGE='\033[0;33m'
 
 if [[ -s /data/.runner ]]; then
-  printf "forgejo-register: ${GREEN}Forgejo Runner already registered!\n${NC}"
+  printf "forgejo-register: Forgejo Runner already registered!\n${NC}"
   exit 0
 fi
 
