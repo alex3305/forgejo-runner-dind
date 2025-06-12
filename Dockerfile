@@ -59,7 +59,7 @@ RUN apk add --no-cache bash \
              /run/user && \
     \
     chmod -R a+rx /usr/local/bin \
-                  /etc/periodic && \
+                  /etc/periodic \
                   /etc/s6-overlay && \
     \
     chmod -R 1777 /run && \
