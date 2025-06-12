@@ -32,9 +32,9 @@ services:
     network:
       internal:
     volumes:
-      - /opt/forgejo/runner:/data
+      - /opt/forgejo/runner:/config
     environment:
-      CONFIG_FILE: /data/config.yaml
+      CONFIG_FILE: /config/config.yaml
       FORGEJO_INSTANCE_URL: http://forgejo:3000
       FORGEJO_RUNNER_NAME: my-first-forgejo-runner
       FORGEJO_REGISTRATION_TOKEN: JLcy4PhU8wMBmt2mpu5BmW1OqDVlojtPzmQl9mdC
@@ -68,7 +68,7 @@ This is the instance URL of Forgejo that must be reachable by the runner.
 The registration token is used to register Forgejo Runner to Forgejo. This works as an authentication and authorization token. This token can be found under `/admin/actions/runners` on your Forgejo instance.
 
 > [!NOTE]
-> After registration, the Forgejo Instance URL and Registration Token will be stored in a `/data/.runner` file. After this file is created, the provided environment variables will not be used.
+> After registration, the Forgejo Instance URL and Registration Token will be stored in a `/config/.runner` file. After this file is created, the provided environment variables will not be used.
 
 ### Configuration file
 
@@ -131,8 +131,8 @@ For testing it can be useful to run a minimal container.
 ```bash
 docker run -it --rm --privileged --name forgejo-runner-2 \
       --network forgejo-overlay \
-      -v /opt/appdata/forgejo/runner2:/data \
-      -e CONFIG_FILE=/data/config.yaml \
+      -v /opt/appdata/forgejo/runner2:/config \
+      -e CONFIG_FILE=/config/config.yaml \
       1d.lol/containers/forgejo-runner-dind:latest
 ```
 
