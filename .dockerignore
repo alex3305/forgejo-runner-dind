@@ -1,0 +1,11 @@
+.forgejo/
+.vscode/
+assets/
+
+.editorconfig
+.gitignore
+.yamllint
+config.example.yaml
+LICENSE
+README.md
+renovate.json
