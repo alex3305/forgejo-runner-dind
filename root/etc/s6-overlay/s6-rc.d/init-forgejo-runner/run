@@ -14,12 +14,12 @@ fi
 # Continue with registration...
 
 if [[ -z "${FORGEJO_INSTANCE_URL}" ]]; then
-  printf "forgejo-register: ${RED}Required Forgejo Instance URL parameter missing...\n${NC}"
+  printf >&2 "forgejo-register: ${RED}Required Forgejo Instance URL parameter missing...\n${NC}"
   exit 126
 fi
 
 if [[ -z "${FORGEJO_REGISTRATION_TOKEN}" ]]; then
-  printf "forgejo-register: ${RED}Required Forgejo Registration Token parameter missing...\n${NC}"
+  printf >&2 "forgejo-register: ${RED}Required Forgejo Registration Token parameter missing...\n${NC}"
   exit 127
 fi
 
@@ -69,7 +69,7 @@ if [[ $REG_SUCCESS -eq 1 ]]; then
 
   exit 0
 else
-  echo -e "forgejo-register: ${RED}Could not register Forgejo Runner to $FORGEJO_INSTANCE_URL after $REG_ATTEMPTS attempts.${NC}"
+  echo -e >&2 "forgejo-register: ${RED}Could not register Forgejo Runner to $FORGEJO_INSTANCE_URL after $REG_ATTEMPTS attempts.${NC}"
 
   exit 1
 fi
