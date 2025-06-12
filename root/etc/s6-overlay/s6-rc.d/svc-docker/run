@@ -1,8 +1,40 @@
 #!/command/with-contenv bash
 # shellcheck shell=bash
 
-# Enable Tini subreaping, because dind is running within s6
-export TINI_SUBREAPER=1
+NC='\033[0m' # No Color
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
+
+if ! mkdir -p "$XDG_RUNTIME_DIR" || [ ! -w "$XDG_RUNTIME_DIR" ]; then
+    printf >&2 "docker: ${RED}${XDG_RUNTIME_DIR} needs to be writeable for rootless user.${NC}"
+    exit 1
+fi
+
+if ! mkdir -p "$HOME/.local/share/docker" || [ ! -w "$HOME/.local/share/docker" ]; then
+    printf >&2 "docker: ${RED}${HOME} needs to be writeable for rootless user."
+    exit 1
+fi
+
+if [ -f /proc/sys/kernel/unprivileged_userns_clone ] && unprivClone="$(cat /proc/sys/kernel/unprivileged_userns_clone)" && [ "$unprivClone" != '1' ]; then
+    printf >&2 "docker: ${RED}kernel.unprivileged_userns_clone (/proc/sys/kernel/unprivileged_userns_clone) needs to be set to 1 for rootless docker daemon."
+    exit 1
+fi
+
+if [ -f /proc/sys/user/max_user_namespaces ] && maxUserns="$(cat /proc/sys/user/max_user_namespaces)" && [ "$maxUserns" = '0' ]; then
+    printf >&2 "docker: ${RED}'user.max_user_namespaces' (/proc/sys/user/max_user_namespaces) needs to be more than 0 for rootless docker daemon."
+    exit 1
+fi
 
 exec s6-notifyoncheck -s 5000 -T 60000 -t 1000 -w 2000 -n 30 \
-                      /usr/local/bin/dockerd-entrypoint.sh
+                      rootlesskit \
+                          --net=vpnkit \
+                          --mtu=1500 \
+                          --disable-host-loopback \
+                          --port-driver=builtin \
+                          --copy-up=/etc \
+                          --copy-up=/run \
+                          dockerd \
+                              --host=$DOCKER_HOST \
+                              --storage-driver=fuse-overlayfs \
+                              --feature cdi=false
