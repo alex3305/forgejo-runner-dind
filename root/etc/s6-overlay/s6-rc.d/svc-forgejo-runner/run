@@ -9,5 +9,5 @@ fi
 # Prevent reading the token from the forgejo-runner process
 unset FORGEJO_REGISTRATION_TOKEN
 
-cd /data
+cd /config
 exec forgejo-runner daemon ${CONFIG_ARG}

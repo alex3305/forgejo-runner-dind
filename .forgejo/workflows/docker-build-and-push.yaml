@@ -1,0 +1,80 @@
+---
+name: Docker Build
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-push:
+    name: Docker Build and Push to ${{ matrix.registry }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - registry: 1d.lol
+            registry_username: ${{ github.repository_owner }}
+            registry_token: ${{ secrets.LOCAL_PACKAGES_TOKEN }}
+            image: 1d.lol/${{ github.repository }}
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: ⤵️ Checkout repository
+        # yamllint disable-line rule:line-length
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: 🏗️ Set up Docker Buildx
+        # yamllint disable-line rule:line-length
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
+
+      - name: 🔑 Login to Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        with:
+          registry: ${{ matrix.registry }}
+          username: ${{ matrix.registry_username }}
+          password: ${{ matrix.registry_token }}
+
+      - name: 💄 Extract Docker Metadata
+        id: meta
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5
+        with:
+          images: ${{ matrix.image }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+          # yamllint disable rule:line-length
+          labels: |
+            org.opencontainers.image.title=Forgejo Runner With Docker
+            org.opencontainers.image.description=Forgejo act runner with embedded Docker in Docker
+            org.opencontainers.image.authors=Alex van den Hoogen
+            org.opencontainers.image.documentation=https://github.com/alex3305/forgejo-runner-dind
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.source=https://github.com/alex3305/forgejo-runner-dind
+            org.opencontainers.image.url=https://github.com/alex3305/forgejo-runner-dind
+            org.opencontainers.image.vendor=Alex van den Hoogen
+          # yamllint enable rule:line-length
+
+      - name: 👷 Docker Build and push latest
+        # yamllint disable-line rule:line-length
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

@@ -1,5 +1,5 @@
 ---
-name: Docker Build, Push and release
+name: Release
 
 # yamllint disable-line rule:truthy
 on:
@@ -15,7 +15,7 @@ concurrency:
 jobs:
   version:
     name: Set versions
-    runs-on: docker
+    runs-on: ubuntu-latest
     timeout-minutes: 2
 
     outputs:
@@ -46,56 +46,15 @@ jobs:
           echo "Exporting major version: ${MAJOR_VERSION}"
           echo "major_forgejo_version=$MAJOR_VERSION" >> "$GITHUB_OUTPUT"
 
-  build:
-    name: Build and push
-    needs: version
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - name: ⤵️ Checkout repository
-        # yamllint disable-line rule:line-length
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-
-      - name: 🔧 Set up Docker Buildx
-        # yamllint disable-line rule:line-length
-        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
-
-      - name: 🔑 Login to local registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
-        with:
-          registry: ${{ vars.REGISTRY }}
-          username: ${{ vars.ACTIONS_USER }}
-          password: ${{ secrets.PACKAGES_TOKEN }}
-
-      - name: 🧱 Docker Build and push latest
-        # yamllint disable-line rule:line-length
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
-        with:
-          context: .
-          push: true
-          # yamllint disable rule:line-length
-          tags: |
-            ${{ vars.REGISTRY }}/${{ gitea.repository }}:v${{ env.FULL_VERSION }}
-            ${{ vars.REGISTRY }}/${{ gitea.repository }}:v${{ env.MINOR_VERSION }}
-            ${{ vars.REGISTRY }}/${{ gitea.repository }}:v${{ env.MAJOR_VERSION }}
-          # yamllint enable rule:line-length
-        env:
-          FULL_VERSION: ${{ needs.version.outputs.full_version }}
-          MINOR_VERSION: ${{ needs.version.outputs.minor_version }}
-          MAJOR_VERSION: ${{ needs.version.outputs.major_version }}
-
   release:
     name: Release
-    needs: [version, build]
-    runs-on: docker
-    timeout-minutes: 15
+    needs: [version]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: ⤵️ Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          sparse-checkout: Dockerfile
 
       - name: 🚀 Create release
         # yamllint disable-line rule:line-length
