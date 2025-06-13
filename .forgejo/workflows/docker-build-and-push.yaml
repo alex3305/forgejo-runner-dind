@@ -22,6 +22,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - registry: docker.io
+            registry_username: ${{ vars.DOCKERHUB_USERNAME }}
+            registry_token: ${{ secrets.DOCKERHUB_TOKEN }}
+            image: ${{ vars.DOCKERHUB_USERNAME }}/forgejo-runner-dind
           - registry: 1d.lol
             registry_username: ${{ github.repository_owner }}
             registry_token: ${{ secrets.LOCAL_PACKAGES_TOKEN }}
