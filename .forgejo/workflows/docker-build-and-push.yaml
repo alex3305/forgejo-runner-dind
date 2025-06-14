@@ -1,9 +1,11 @@
 ---
-name: Docker Build
+name: Docker Build And Push
 
 # yamllint disable-line rule:truthy
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
   workflow_dispatch:
