@@ -16,22 +16,9 @@ concurrency:
 
 jobs:
   build-and-push:
-    name: Docker Build and Push to ${{ matrix.registry }}
+    name: Docker Build and Push Container to registries
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - registry: docker.io
-            registry_username: ${{ vars.DOCKERHUB_USERNAME }}
-            registry_token: ${{ secrets.DOCKERHUB_TOKEN }}
-            image: ${{ vars.DOCKERHUB_USERNAME }}/forgejo-runner-dind
-          - registry: 1d.lol
-            registry_username: ${{ vars.LOCAL_PACKAGES_USERNAME }}
-            registry_token: ${{ secrets.LOCAL_PACKAGES_TOKEN }}
-            image: 1d.lol/${{ github.repository }}
+    timeout-minutes: 30
 
     permissions:
       contents: read
@@ -46,18 +33,34 @@ jobs:
         # yamllint disable-line rule:line-length
         uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
 
-      - name: 🔑 Login to Registry
+      - name: 🏗️ Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: 🔑 Docker Login to Docker Hub
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
         with:
-          registry: ${{ matrix.registry }}
-          username: ${{ matrix.registry_username }}
-          password: ${{ matrix.registry_token }}
+          registry: docker.io
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: 💄 Extract Docker Metadata
+      - name: 🔑 Docker Login to Local Container Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        with:
+          registry: 1d.lol
+          username: ${{ vars.LOCAL_PACKAGES_USERNAME }}
+          password: ${{ secrets.LOCAL_PACKAGES_TOKEN }}
+
+      - name: 💄 Prepare Docker Metadata
         id: meta
         uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5
         with:
-          images: ${{ matrix.image }}
+          images: |
+            ${{ vars.DOCKERHUB_USERNAME }}/forgejo-runner-dind
+            1d.lol/${{ github.repository }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
