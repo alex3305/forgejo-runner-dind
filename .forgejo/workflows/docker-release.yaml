@@ -6,6 +6,13 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - .forgejo/**
+      - .vscode/**
+      - .gitignore
+      - .yamllint
+      - LICENSE
+      - README.md
   workflow_dispatch:
 
 concurrency:
@@ -68,7 +75,7 @@ jobs:
           git tag -fa "$SEMVER_TAG" -m "$SEMVER_TAG"
           git tag -fa "$MAJOR_TAG" -m "$MAJOR_TAG"
           git tag -fa "$MAJOR_TAG" -m "$MAJOR_TAG"
-          
+
           git push -f origin --tags
         env:
           GIT_COMMITTER_NAME: Actions Bot
@@ -112,6 +119,7 @@ jobs:
 
       - name: 💄 Prepare Docker Metadata
         id: meta
+        # yamllint disable-line rule:line-length
         uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5
         with:
           images: |

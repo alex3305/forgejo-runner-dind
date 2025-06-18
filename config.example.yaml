@@ -1,3 +1,4 @@
+---
 # Forgejo Runner dind Example Configuration File
 #
 # Run `forgejo-runner generate-config > config.yaml` to generate a config
