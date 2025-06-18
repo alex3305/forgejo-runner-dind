@@ -1,13 +1,11 @@
 ---
-name: Docker Build And Push
+name: Docker Build, Push and Release
 
 # yamllint disable-line rule:truthy
 on:
   push:
     branches:
       - main
-    tags:
-      - "v*"
   workflow_dispatch:
 
 concurrency:
@@ -15,9 +13,74 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  version:
+    name: Set versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    permissions:
+      contents: read
+
+    outputs:
+      full_version: ${{ steps.get_version.outputs.forgejo_version }}
+      minor_version: ${{ steps.get_version.outputs.minor_forgejo_version }}
+      major_version: ${{ steps.get_version.outputs.major_forgejo_version }}
+
+    steps:
+      - name: ⤵️ Checkout repository
+        # yamllint disable-line rule:line-length
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          sparse-checkout: Dockerfile
+
+      - name: 🎯 Set versions
+        id: get_version
+        run: |
+          VERSION=$(head -n1 Dockerfile | grep -oP "(\d+\.)?(\d+\.)?(\*|\d+)")
+
+          echo "Exporting version: ${VERSION}"
+          echo "forgejo_version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          MINOR_VERSION="${VERSION%.*}"
+          echo "Exporting minor version: ${MINOR_VERSION}"
+          echo "minor_forgejo_version=$MINOR_VERSION" >> "$GITHUB_OUTPUT"
+
+          MAJOR_VERSION="${VERSION%.*.*}"
+          echo "Exporting major version: ${MAJOR_VERSION}"
+          echo "major_forgejo_version=$MAJOR_VERSION" >> "$GITHUB_OUTPUT"
+
+  tag:
+    name: Update Git Tags
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    needs: [version]
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: ⤵️ Checkout repository
+        # yamllint disable-line rule:line-length
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: 🚀 Update tags
+        run: |
+          git tag -fa "$SEMVER_TAG" -m "$SEMVER_TAG"
+          git tag -fa "$MAJOR_TAG" -m "$MAJOR_TAG"
+          git tag -fa "$MAJOR_TAG" -m "$MAJOR_TAG"
+          
+          git push -f origin --tags
+        env:
+          GIT_COMMITTER_NAME: Actions Bot
+          GIT_COMMITTER_EMAIL: actions@1d.lol
+          SEMVER_TAG: ${{ needs.version.outputs.full_version }}
+          MINOR_TAG: ${{ needs.version.outputs.minor_version }}
+          MAJOR_TAG: ${{ needs.version.outputs.major_version }}
+
   build-and-push:
     name: Docker Build and Push Container to registries
     runs-on: ubuntu-latest
+    needs: [tag]
     timeout-minutes: 30
 
     permissions:
@@ -80,3 +143,23 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  release:
+    name: Release
+    needs: [version, build-and-push]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: ⤵️ Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: 🚀 Create release
+        # yamllint disable-line rule:line-length
+        uses: akkuman/gitea-release-action@f119011bd6c95ab53d2084ace7b539694ce9b252 # v1
+        with:
+          name: "v${{ needs.version.outputs.full_version }}"
+          tag_name: "v${{ needs.version.outputs.full_version }}"
