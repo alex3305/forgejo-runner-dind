@@ -100,9 +100,9 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
-            type=semver,pattern={{version}},value=${{ needs.version.outputs.full_version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version.outputs.full_version }}
-            type=semver,pattern={{major}},value=${{ needs.version.outputs.full_version }}
+            type=raw,pattern={{version}},value=${{ needs.version.outputs.full_version }}
+            type=raw,pattern={{major}}.{{minor}},value=${{ needs.version.outputs.full_version }}
+            type=raw,pattern={{major}},value=${{ needs.version.outputs.full_version }}
           # yamllint disable rule:line-length
           labels: |
             org.opencontainers.image.title=Forgejo Runner With Docker
