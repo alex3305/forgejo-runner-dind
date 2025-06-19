@@ -98,11 +98,11 @@ jobs:
             ${{ vars.DOCKERHUB_USERNAME }}/forgejo-runner-dind
             1d.lol/${{ github.repository }}
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
-            type=raw,pattern={{version}},value=${{ needs.version.outputs.full_version }}
-            type=raw,pattern={{major}}.{{minor}},value=${{ needs.version.outputs.full_version }}
-            type=raw,pattern={{major}},value=${{ needs.version.outputs.full_version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ needs.version.outputs.full_version }},enable={{is_default_branch}}
+            type=raw,value=${{ needs.version.outputs.minor_version }},enable={{is_default_branch}}
+            type=raw,value=${{ needs.version.outputs.major_version }},enable={{is_default_branch}}
           # yamllint disable rule:line-length
           labels: |
             org.opencontainers.image.title=Forgejo Runner With Docker
