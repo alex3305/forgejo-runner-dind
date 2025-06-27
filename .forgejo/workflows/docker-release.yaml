@@ -71,7 +71,7 @@ jobs:
 
       - name: 🚀 Create release
         # yamllint disable-line rule:line-length
-        uses: akkuman/gitea-release-action@f119011bd6c95ab53d2084ace7b539694ce9b252 # v1
+        uses: akkuman/gitea-release-action@f66c1c98f12e032443e806fae4882a05368df40c # v1
         with:
           name: "v${{ needs.version.outputs.full_version }}"
           tag_name: "v${{ needs.version.outputs.full_version }}"
