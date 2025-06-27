@@ -99,11 +99,16 @@ jobs:
       packages: write
 
     steps:
-      - name: ⤵️ Checkout repository
+      - name: ⤵️ Checkout created tag
         # yamllint disable-line rule:line-length
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           ref: "v${{ needs.version.outputs.full_version }}"
+
+      - name: Set correct environment
+        run: |
+          TAG=v${{ needs.version.outputs.full_version }}
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
 
       - name: 🏗️ Set up Docker Buildx
         # yamllint disable-line rule:line-length
