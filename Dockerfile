@@ -1,4 +1,4 @@
-FROM code.forgejo.org/forgejo/runner:6.3.1 AS forgejo-runner
+FROM code.forgejo.org/forgejo/runner:6.4.0 AS forgejo-runner
 
 FROM busybox:1.37.0 AS docker
 
