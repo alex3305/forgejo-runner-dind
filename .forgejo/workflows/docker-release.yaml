@@ -116,6 +116,13 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: 🔑 Docker Login to GHCR Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ vars.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
       - name: 🔑 Docker Login to Local Container Registry
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
         with:
@@ -130,6 +137,7 @@ jobs:
         with:
           images: |
             ${{ vars.DOCKERHUB_USERNAME }}/forgejo-runner-dind
+            ghcr.io/${{ vars.GHCR_USERNAME }}/forgejo-runner-dind
             1d.lol/${{ github.repository }}
           tags: |
             type=ref,event=branch
