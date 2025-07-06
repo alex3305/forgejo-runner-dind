@@ -105,11 +105,6 @@ jobs:
         with:
           ref: "v${{ needs.version.outputs.full_version }}"
 
-      - name: Set correct environment
-        run: |
-          TAG=v${{ needs.version.outputs.full_version }}
-          echo "TAG=$TAG" >> "$GITHUB_ENV"
-
       - name: 🏗️ Set up Docker Buildx
         # yamllint disable-line rule:line-length
         uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
@@ -139,9 +134,9 @@ jobs:
           tags: |
             type=ref,event=branch
             type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=raw,value=v${{ needs.version.outputs.full_version }},enable={{is_default_branch}}
+            type=raw,value=v${{ needs.version.outputs.minor_version }},enable={{is_default_branch}}
+            type=raw,value=v${{ needs.version.outputs.major_version }},enable={{is_default_branch}}
           # yamllint disable rule:line-length
           labels: |
             org.opencontainers.image.title=Forgejo Runner With Docker
