@@ -1,9 +1,9 @@
-FROM code.forgejo.org/forgejo/runner:6.3.1 AS forgejo-runner
+FROM code.forgejo.org/forgejo/runner:6.4.0 AS forgejo-runner
 
-FROM busybox:1.36.1 AS docker
+FROM busybox:1.37.0 AS docker
 
 # renovate: datasource=github-releases depName=moby/moby
-ARG DOCKER_VERSION=28.2.2
+ARG DOCKER_VERSION=28.3.1
 
 ADD https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz /tmp/docker.tgz
 ADD https://download.docker.com/linux/static/stable/x86_64/docker-rootless-extras-${DOCKER_VERSION}.tgz /tmp/docker-rootless-extras.tgz
@@ -12,7 +12,7 @@ RUN mkdir -p /docker && \
     tar -xvzf /tmp/docker.tgz -C /docker --strip-components 1 && \
     tar -xvzf /tmp/docker-rootless-extras.tgz -C /docker --strip-components 1
 
-FROM busybox:1.36.1 AS s6-overlay
+FROM busybox:1.37.0 AS s6-overlay
 
 # renovate: datasource=github-releases depName=just-containers/s6-overlay
 ARG S6_OVERLAY_VERSION=3.2.1.0
