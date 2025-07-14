@@ -8,53 +8,74 @@
   Container image that combines Forgejo Runner 🏃 with <i>Docker-in-Docker</i> 🐳.
 </h4>
 
+<br/>
+
+## Introduction
+
+At the start of 2025, I switched from [Gitea](https://about.gitea.com/) to [Forgejo](https://forgejo.org/). While Gitea - and its predecessor [Gogs](https://gogs.io/) - are great tools, I appreciate that Forgejo powers its own real-world, public-facing setup with [Codeberg](https://codeberg.org/). And that it has more frequent stable releases.
+
+When I used Gitea Actions, their Docker-in-Docker image with Gitea Act Runner made things super easy. Despite perhaps a few quirks, it’s a great way to get started. Forgejo didn’t have a similar all-in-one image. Their official [forgejo/runner repository](https://code.forgejo.org/forgejo/runner) includes [examples with multiple containers](https://code.forgejo.org/forgejo/runner/src/branch/main/examples/docker-compose), which work fine, but I preferred something simpler.
+
+So, I built this container as a straightforward starting point: a single Docker-in-Docker image for running Forgejo Actions.
+
+### Features
+
+- All-in-one Forgejo Runner with Docker in Docker image
+- S6 Overlay for service management
+- Periodic Docker pruning
+- Hosted tool cache support
+- Rootless for improved security
+- Supports amd64 and arm64 architectures
+
 ## Usage
 
-### Docker Compose
+Getting started is the easiest with Docker Compose. To get started you'll need an already running Forgejo instance with:
+
+- A Forgejo Instance URL (preferably https)
+- A Forgejo Actions Registration Token
+
+### Minimal Docker Compose
+
+This is a minimal setup that is only recommended for testing.
 
 ```yaml
 services:
-  forgejo:
-    image: codeberg.org/forgejo/forgejo:latest
-    network:
-      internal:
-
   forgejo-runner:
     image: alex3305/forgejo-runner-dind:latest
     privileged: true
     network:
       internal:
     volumes:
-      - /opt/forgejo/runner:/config
+      ~/forgejo-runner:/config
     environment:
-      CONFIG_FILE: /config/config.yaml
-      FORGEJO_INSTANCE_URL: http://forgejo:3000
-      FORGEJO_RUNNER_NAME: my-first-forgejo-runner
+      FORGEJO_INSTANCE_URL: https://forgejo.example.com
       FORGEJO_REGISTRATION_TOKEN: JLcy4PhU8wMBmt2mpu5BmW1OqDVlojtPzmQl9mdC
-
-networks:
-  internal:
-    name: forgejo
 ```
 
 > [!NOTE]
-> Privileged mode is required for Docker in Docker to function properly. This is explained in [docker-library/docker#151](https://github.com/docker-library/docker/issues/151#issuecomment-483185972) and [docker-library/docker#281](https://github.com/docker-library/docker/issues/281#issuecomment-744766015). However this is still a security issue thats need to treated appropriately. 
+> Privileged mode is required for Docker in Docker to function properly. This is explained in [docker-library/docker#151](https://github.com/docker-library/docker/issues/151#issuecomment-483185972) and [docker-library/docker#281](https://github.com/docker-library/docker/issues/281#issuecomment-744766015). However this is still a security issue thats need to treated appropriately.
+
+## Configuration
+
+This section contains the required setup configuration. For usage and more advanced configuration see below.
 
 ### Environment variables
 
-| Variable                     | Required |               Default               | Description |
-| ---------------------------- | :------: | :---------------------------------: | ----------- |
-| `FORGEJO_INSTANCE_URL`       |   ✅*    |                                     | URL of the Forgejo instance. |
-| `FORGEJO_REGISTRATION_TOKEN` |   ✅*    |                                     | Forgejo Registration token. |
-| `FORGEJO_RUNNER_NAME`        |    ✅    |             _hostname_              | Name of the Forgejo runner. |
-| `CONFIG_FILE`                |    ❌    |                                     | The optional config file that is used for this runner. Must be a path that is mounted in the container. |
-| `DOCKER_HOST`                |    ❌    | `unix:///run/user/1000/docker.sock` | The Docker socket that Forgejo Runner connects to. |
-| `DOCKER_LOG_LEVEL`           |    ❌    |               `info`                | The Docker Daemon log level |
-| `FORGEJO_RUNNER_LABELS`      |    ❌    |                                     | Optional Forgejo runner labels |
-| `EXTRA_ARGS`                 |    ❌    |                                     | Optional additional arguments |
+A quick overview of the available environment variables.
+
+| Variable                     | Required |               Default               |
+| ---------------------------- | :------: | :---------------------------------: |
+| `FORGEJO_INSTANCE_URL`       |    ☑️    |                                     |
+| `FORGEJO_REGISTRATION_TOKEN` |    ☑️    |                                     |
+| `FORGEJO_RUNNER_NAME`        |    ❌    |             _hostname_              |
+| `CONFIG_FILE`                |    ❌    |                                     |
+| `DOCKER_HOST`                |    ❌    | `unix:///run/user/1000/docker.sock` |
+| `DOCKER_LOG_LEVEL`           |    ❌    |               `info`                |
+| `FORGEJO_RUNNER_LABELS`      |    ❌    |                                     |
+| `EXTRA_ARGS`                 |    ❌    |                                     |
 
 > [!IMPORTANT]
-> The variables marked with an **&ast;** are required until the Forgejo Runner is successfully registered.
+> The variables marked with an ☑️ are required until the Forgejo Runner is successfully registered. This can be validated by the `.runner` file that the Forgejo Runner created in the mounted `/config` directory.
 
 #### Forgejo Instance URL
 
@@ -67,45 +88,131 @@ The registration token is used to register Forgejo Runner to Forgejo. This works
 > [!NOTE]
 > After registration, the Forgejo Instance URL and Registration Token will be stored in a `/config/.runner` file. After this file is created, the provided environment variables will not be used.
 
+#### Forgejo Runner name
+
+You can provide a custom Forgejo Runner name. This defaults to the hostname of the container. You can also customize the containers hostname to customize this value.
+
+#### Config file
+
+When no config file is provided, the container uses either `/config/config.yml` or `/config/config.yaml` for configuration.
+
+#### Docker host
+
+This is the Unix socket to the Docker daemon. This value can be modified but is highly discouraged.
+
+> [!DANGER]
+> IF this value is set incorrectly the container will fail to start.
+
+#### Docker Log Level
+
+The Docker Daemon log level. This can be adjusted for testing or when the Docker daemon is too verbose.
+
+Allowed values: `debug`, `info`, `warn`, `error`, `fatal`
+
+#### Forgejo Runner Labels
+
+Forgejo Runner labels that are used for workflows. These can also be defined within the configuration file. For more information see the [Choosing Labels section](https://forgejo.org/docs/latest/admin/actions/#choosing-labels) within the Forgejo Actions administrator guide. 
+
+#### Extra args
+
+Optional additional arguments for the Forgejo runner.
+
+Failing to do so may lead to unexpected results. For instance in jobs not starting or unable to access the Docker daemon within a job.
+
 ### Configuration file
 
-It is also possible to generate a Forgejo Runner configuration file. This provides far more customization and options than just using the runner.
+It is a highly recommended to use a configuration file. It is possible to generate a fresh configuration file with this Docker image using a run command:
 
 ```bash
-docker run -t --rm \
-        --name forgejo-config-generator \
-        --entrypoint forgejo-runner \
-        alex3305/forgejo-runner-dind:latest \
-        generate-config
+docker run --rm -it \
+           --entrypoint forgejo-runner \
+           alex3305/forgejo-runner-dind:latest \
+           generate-config > config.yml
 ```
 
-Which will generate the latest template configuration to standard out. This can also be output to a file for later use.
+This will create an 'empty' `config.yml` file in your current directory. This file can later be mounted in the container.
 
-```bash
-mkdir -p /opt/forgejo/runner/
-docker run -t --rm \
-        --name forgejo-config-generator \
-        --entrypoint forgejo-runner \
-        alex3305/forgejo-runner-dind:latest \
-        generate-config > /opt/forgejo/runner/config.yaml
-```
-
-#### Required variables
+#### Required configuration variables
 
 Within the configuration file it is required for the following options to be set:
 
 ```yaml
 container:
-  # Whether to use privileged mode or not when launching task containers (privileged mode is required for Docker-in-Docker).
   privileged: true
-  # overrides the docker client host with the specified one.
-  # If "-" or "", an available docker host will automatically be found.
-  # If "automount", an available docker host will automatically be found and mounted in the job container (e.g. /var/run/docker.sock).
-  # Otherwise the specified docker host will be used and an error will be returned if it doesn't work.
   docker_host: "automount"
 ```
 
-Failing to do so may lead to unexpected results. For instance in jobs not starting or unable to access the Docker daemon within a job.
+Failure to do so will make this image fail to start up or function.
+
+## Caching
+
+Caching is setup within the Configuration file. The most basic, functional setup is:
+
+```yaml
+cache:
+  enabled: true
+  dir: "/cache/"
+  host: "forgejo-runner"
+```
+
+The host attribute is very important here. This should be either:
+
+1. The hostname or IP address of your runner container if it is reachable from the outside, ie. host or vlan networking
+2. The hostname of your container if your container is not reachable from the outside, ie. in a Swarm network
+
+Either way this address must be reachable and routable from the workflows container within dind.
+
+Whenever you want to use option 2 with a hostname, I would recommend setting this value using Docker Compose:
+
+```yaml
+services:
+  forgejo-runner:
+    image: alex3305/forgejo-runner-dind:latest
+    privileged: true
+    hostname: my-personal-forgejo-runner
+    network:
+      internal:
+    volumes:
+      ~/forgejo-runner:/config
+```
+
+and setting an identical value in your configuration file:
+
+```yaml
+cache:
+  enabled: true
+  dir: "/cache/"
+  host: "my-personal-forgejo-runner"
+```
+
+### Hosted tool cache
+
+It is also possible to use a hosted tool cache. With a hosted tool cache all the workflows can use a shared environment for tooling such as Java, Python or dotnet. This can greatly reduce build times. To use a hosted tool cache configure the following within your configuration file:
+
+```yaml
+container:
+  options: "-v /opt/hostedtoolcache:/opt/hostedtoolcache"
+  valid_volumes: ["/opt/hostedtoolcache"]
+```
+
+I also opt to mount this path to the outside so it survives container upgrades or re-deployments. But this is entirely optional:
+
+```yaml
+services:
+  forgejo-runner:
+    image: alex3305/forgejo-runner-dind:latest
+    privileged: true
+    hostname: my-forgejo-runner
+    network:
+      internal:
+    volumes:
+      ~/forgejo-runner:/config
+      toolcache:/opt/hostedtoolcache
+
+volumes:
+  toolcache:
+    name: my-forgejo-runner-hosted-toolcache
+```
 
 ## Development
 
