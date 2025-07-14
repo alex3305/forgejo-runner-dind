@@ -1,30 +1,69 @@
-FROM busybox:1.37.0 AS docker
+FROM alpine:3.22.0 AS docker
 
-# renovate: datasource=github-releases depName=moby/moby
+# renovate: datasource=github-releases depName=moby packageName=moby/moby
 ARG DOCKER_VERSION=28.3.2
 
-ADD https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz /tmp/docker.tgz
-ADD https://download.docker.com/linux/static/stable/x86_64/docker-rootless-extras-${DOCKER_VERSION}.tgz /tmp/docker-rootless-extras.tgz
+ARG TARGETARCH
+ARG TARGETOS
 
-RUN mkdir -p /docker && \
+RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
+        "amd64")   echo "x86_64"  ;; \
+        "arm64")   echo "aarch64" ;; \
+        "arm/v7")  echo "armel"   ;; \
+        "arm/v6")  echo "armhf"   ;; \
+    esac) && \
+    \
+    wget https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-${DOCKER_VERSION}.tgz \
+         -O /tmp/docker.tgz && \
+    wget https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-rootless-extras-${DOCKER_VERSION}.tgz \
+         -O /tmp/docker-rootless-extras.tgz && \
+    \
+    mkdir -p /docker && \
     tar -xvzf /tmp/docker.tgz -C /docker --strip-components 1 && \
     tar -xvzf /tmp/docker-rootless-extras.tgz -C /docker --strip-components 1
 
-FROM busybox:1.37.0 AS s6-overlay
 
-# renovate: datasource=github-releases depName=just-containers/s6-overlay
+FROM alpine:3.22.0 AS s6-overlay
+
+# renovate: datasource=github-releases depName=s6-overlay packageName=just-containers/s6-overlay
 ARG S6_OVERLAY_VERSION=3.2.1.0
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz /tmp
+ARG TARGETARCH
 
-RUN mkdir -p /s6 && \
+RUN S6_TARGETARCH=$(case ${TARGETARCH} in \
+        "amd64")   echo "x86_64"  ;; \
+        "arm64")   echo "aarch64" ;; \
+        "arm/v7")  echo "arm"     ;; \
+        "arm/v6")  echo "armhf"   ;; \
+    esac) && \
+    \
+    wget https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
+         -O /tmp/s6-overlay-noarch.tar.xz && \
+    wget https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_TARGETARCH}.tar.xz \
+         -O /tmp/s6-overlay-${S6_TARGETARCH}.tar.xz && \
+    \
+    mkdir -p /s6 && \
     tar -C /s6 -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
-    tar -C /s6 -Jxpf /tmp/s6-overlay-x86_64.tar.xz
+    tar -C /s6 -Jxpf /tmp/s6-overlay-${S6_TARGETARCH}.tar.xz
 
-# renovate: datasource=github-releases depName=moby/moby
+
+FROM alpine:3.22.0 AS forgejo-runner
+
+# renovate: datasource=gitea-releases depName=forgejo-runner packageName=forgejo/runner registryUrl=https://code.forgejo.org/
 ARG FORGEJO_RUNNER_VERSION=6.4.0
-FROM code.forgejo.org/forgejo/runner:${FORGEJO_RUNNER_VERSION} AS forgejo-runner
+
+ARG TARGETARCH
+ARG TARGETOS
+
+RUN ACT_TARGETARCH=$(case ${TARGETARCH} in \
+        "amd64")   echo "amd64"  ;; \
+        "arm64")   echo "arm64" ;; \
+    esac) && \
+    \
+    mkdir -p /act && \
+    wget https://code.forgejo.org/forgejo/runner/releases/download/v${FORGEJO_RUNNER_VERSION}/forgejo-runner-${FORGEJO_RUNNER_VERSION}-${TARGETOS}-${ACT_TARGETARCH} \
+         -O /act/forgejo-runner
+
 
 FROM alpine:3.22.0
 
@@ -32,17 +71,17 @@ FROM alpine:3.22.0
 ENV UID=1000
 RUN adduser -h /home/rootless -g 'Rootless' -D -u ${UID} rootless
 
-# Add Forgejo Runner from referenced Container
-COPY --from=forgejo-runner \
-     --chown=root:rootless \
-     --chmod=0750 \
-     /bin/forgejo-runner /usr/local/bin/
-
-# Add Rootless Docker from build stage
+# Add Rootless Docker in Docker from build stage
 COPY --from=docker \
      --chown=root:rootless \
      --chmod=0750 \
      /docker /usr/local/bin/
+
+# Add Forgejo Runner from build stage
+COPY --from=forgejo-runner \
+     --chown=root:rootless \
+     --chmod=0750 \
+     /act/forgejo-runner /usr/local/bin/
 
 # Add S6 Overlay from build stage
 COPY --from=s6-overlay \
