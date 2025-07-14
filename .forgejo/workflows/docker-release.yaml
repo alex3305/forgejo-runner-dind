@@ -41,9 +41,17 @@ jobs:
           sparse-checkout: Dockerfile
       
       - name: Get Docker version
+        id: version
         shell: bash
         run: |
           VERSION=$(grep -i "^ARG ${NAME}_VERSION=" Dockerfile | cut -d= -f2)
+
+          if [ -z "${VERSION}" ]; then
+            echo "Could not retrieve version for $NAME"
+            exit 1
+          fi
+
+          echo "Found $NAME version $VERSION"
 
           echo "semver=$VERSION" >> "$GITHUB_OUTPUT"
           echo "semver_minor=${VERSION%.*}" >> "$GITHUB_OUTPUT"
@@ -72,9 +80,17 @@ jobs:
           sparse-checkout: Dockerfile
       
       - name: Get Forgejo Runner version
+        id: version
         shell: bash
         run: |
           VERSION=$(grep -i "^ARG ${NAME}_VERSION=" Dockerfile | cut -d= -f2)
+
+          if [ -z "${VERSION}" ]; then
+            echo "Could not retrieve version for $NAME"
+            exit 1
+          fi
+
+          echo "Found $NAME version $VERSION"
 
           echo "semver=$VERSION" >> "$GITHUB_OUTPUT"
           echo "semver_minor=${VERSION%.*}" >> "$GITHUB_OUTPUT"
@@ -99,11 +115,9 @@ jobs:
         # yamllint disable-line rule:line-length
         uses: akkuman/gitea-release-action@f66c1c98f12e032443e806fae4882a05368df40c # v1
         with:
-          name: "v$FORGEJO_RUNNER (dind $DIND)"
-          tag_name: "v$FORGEJO_RUNNER-$DIND"
-        env:
-          FORGEJO_RUNNER: ${{ needs.forgejo_runner_version.outputs.semver }}
-          DIND: ${{ needs.docker_version.outputs.semver }}
+          name: "v${{ needs.forgejo_runner_version.outputs.semver }} (dind ${{ needs.docker_version.outputs.semver }})"
+          tag_name: "v${{ needs.forgejo_runner_version.outputs.semver }}-${{ needs.docker_version.outputs.semver }}"
+          # yamllint enable rule:line-length
 
   build-and-push:
     name: Docker Build and Push Container to registries
@@ -147,7 +161,7 @@ jobs:
 
       - name: 💄 Prepare Docker Metadata
         id: meta
-        # yamllint disable-line rule:line-length
+        # yamllint disable rule:line-length
         uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5
         with:
           images: |
@@ -169,7 +183,6 @@ jobs:
             type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_major }}-dind-${{ needs.docker_version.outputs.semver }},enable={{is_default_branch}}
             type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_major }}-dind-${{ needs.docker_version.outputs.semver_minor }},enable={{is_default_branch}}
             type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_major }}-dind-${{ needs.docker_version.outputs.semver_major }},enable={{is_default_branch}}
-          # yamllint disable rule:line-length
           labels: |
             org.opencontainers.image.title=Forgejo Runner With Docker
             org.opencontainers.image.description=Forgejo act runner with embedded Docker in Docker
