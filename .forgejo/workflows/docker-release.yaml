@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           sparse-checkout: Dockerfile
-      
+
       - name: Get Docker version
         id: version
         shell: bash
@@ -78,7 +78,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           sparse-checkout: Dockerfile
-      
+
       - name: Get Forgejo Runner version
         id: version
         shell: bash
@@ -112,7 +112,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: 🚀 Create release
-        # yamllint disable-line rule:line-length
+        # yamllint disable rule:line-length
         uses: akkuman/gitea-release-action@f66c1c98f12e032443e806fae4882a05368df40c # v1
         with:
           name: "v${{ needs.forgejo_runner_version.outputs.semver }} (dind ${{ needs.docker_version.outputs.semver }})"
