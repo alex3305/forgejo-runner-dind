@@ -23,30 +23,6 @@ RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
     tar -xvzf /tmp/docker-rootless-extras.tgz -C /docker --strip-components 1
 
 
-FROM alpine:3.22.0 AS s6-overlay
-
-# renovate: datasource=github-releases depName=s6-overlay packageName=just-containers/s6-overlay
-ARG S6_OVERLAY_VERSION=3.2.1.0
-
-ARG TARGETARCH
-
-RUN S6_TARGETARCH=$(case ${TARGETARCH} in \
-        "amd64")   echo "x86_64"  ;; \
-        "arm64")   echo "aarch64" ;; \
-        "arm/v7")  echo "arm"     ;; \
-        "arm/v6")  echo "armhf"   ;; \
-    esac) && \
-    \
-    wget https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
-         -O /tmp/s6-overlay-noarch.tar.xz && \
-    wget https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_TARGETARCH}.tar.xz \
-         -O /tmp/s6-overlay-${S6_TARGETARCH}.tar.xz && \
-    \
-    mkdir -p /s6 && \
-    tar -C /s6 -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
-    tar -C /s6 -Jxpf /tmp/s6-overlay-${S6_TARGETARCH}.tar.xz
-
-
 FROM alpine:3.22.0 AS forgejo-runner
 
 # renovate: datasource=gitea-releases depName=forgejo-runner packageName=forgejo/runner registryUrl=https://code.forgejo.org/
@@ -63,6 +39,30 @@ RUN ACT_TARGETARCH=$(case ${TARGETARCH} in \
     mkdir -p /act && \
     wget https://code.forgejo.org/forgejo/runner/releases/download/v${FORGEJO_RUNNER_VERSION}/forgejo-runner-${FORGEJO_RUNNER_VERSION}-${TARGETOS}-${ACT_TARGETARCH} \
          -O /act/forgejo-runner
+
+
+FROM alpine:3.22.0 AS s6-overlay
+
+# renovate: datasource=github-releases depName=s6-overlay packageName=just-containers/s6-overlay
+ARG S6_OVERLAY_VERSION=3.2.1.0
+
+ARG TARGETARCH
+
+RUN S6_TARGETARCH=$(case ${TARGETARCH} in \
+        "amd64")   echo "x86_64"  ;; \
+        "arm64")   echo "aarch64" ;; \
+        "arm/v7")  echo "arm"     ;; \
+        "arm/v6")  echo "armhf"   ;; \
+    esac) && \
+    \
+    wget https://www.github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
+         -O /tmp/s6-overlay-noarch.tar.xz && \
+    wget https://www.github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_TARGETARCH}.tar.xz \
+         -O /tmp/s6-overlay-${S6_TARGETARCH}.tar.xz && \
+    \
+    mkdir -p /s6 && \
+    tar -C /s6 -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
+    tar -C /s6 -Jxpf /tmp/s6-overlay-${S6_TARGETARCH}.tar.xz
 
 
 FROM alpine:3.22.0
