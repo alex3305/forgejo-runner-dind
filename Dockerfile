@@ -1,4 +1,4 @@
-FROM busybox:1.37.0 AS docker
+FROM alpine:3.22.0 AS docker
 
 # renovate: datasource=github-releases depName=moby packageName=moby/moby
 ARG DOCKER_VERSION=28.3.2
@@ -13,9 +13,9 @@ RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
         "arm/v6")  echo "armhf"   ;; \
     esac) && \
     \
-    wget https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-${DOCKER_VERSION}.tgz \
+    wget -4 https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-${DOCKER_VERSION}.tgz \
          -O /tmp/docker.tgz && \
-    wget https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-rootless-extras-${DOCKER_VERSION}.tgz \
+    wget -4 https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-rootless-extras-${DOCKER_VERSION}.tgz \
          -O /tmp/docker-rootless-extras.tgz && \
     \
     mkdir -p /docker && \
@@ -37,11 +37,11 @@ RUN ACT_TARGETARCH=$(case ${TARGETARCH} in \
     esac) && \
     \
     mkdir -p /act && \
-    wget https://code.forgejo.org/forgejo/runner/releases/download/v${FORGEJO_RUNNER_VERSION}/forgejo-runner-${FORGEJO_RUNNER_VERSION}-${TARGETOS}-${ACT_TARGETARCH} \
+    wget -4 https://code.forgejo.org/forgejo/runner/releases/download/v${FORGEJO_RUNNER_VERSION}/forgejo-runner-${FORGEJO_RUNNER_VERSION}-${TARGETOS}-${ACT_TARGETARCH} \
          -O /act/forgejo-runner
 
 
-FROM busybox:1.37.0 AS s6-overlay
+FROM alpine:3.22.0 AS s6-overlay
 
 # renovate: datasource=github-releases depName=s6-overlay packageName=just-containers/s6-overlay
 ARG S6_OVERLAY_VERSION=3.2.1.0
@@ -55,9 +55,9 @@ RUN S6_TARGETARCH=$(case ${TARGETARCH} in \
         "arm/v6")  echo "armhf"   ;; \
     esac) && \
     \
-    wget https://www.github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
+    wget -4 https://www.github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
          -O /tmp/s6-overlay-noarch.tar.xz && \
-    wget https://www.github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_TARGETARCH}.tar.xz \
+    wget -4 https://www.github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_TARGETARCH}.tar.xz \
          -O /tmp/s6-overlay-${S6_TARGETARCH}.tar.xz && \
     \
     mkdir -p /s6 && \
