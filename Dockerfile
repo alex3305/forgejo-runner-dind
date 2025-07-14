@@ -1,5 +1,3 @@
-FROM code.forgejo.org/forgejo/runner:6.4.0 AS forgejo-runner
-
 FROM busybox:1.37.0 AS docker
 
 # renovate: datasource=github-releases depName=moby/moby
@@ -23,6 +21,10 @@ ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLA
 RUN mkdir -p /s6 && \
     tar -C /s6 -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
     tar -C /s6 -Jxpf /tmp/s6-overlay-x86_64.tar.xz
+
+# renovate: datasource=github-releases depName=moby/moby
+ARG FORGEJO_RUNNER_VERSION=6.4.0
+FROM code.forgejo.org/forgejo/runner:${FORGEJO_RUNNER_VERSION} AS forgejo-runner
 
 FROM alpine:3.22.0
 
