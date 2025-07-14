@@ -1,10 +1,26 @@
-FROM alpine:3.22.0 AS docker
-
-# renovate: datasource=github-releases depName=moby packageName=moby/moby
-ARG DOCKER_VERSION=28.3.2
+FROM alpine:3.22.0 AS base
 
 ARG TARGETARCH
 ARG TARGETOS
+
+RUN apk add --no-cache bash            \
+                       ca-certificates \
+                       curl            \
+                       fuse-overlayfs  \
+                       git             \
+                       iproute2        \
+                       iptables        \
+                       openssl         \
+                       pigz            \
+                       shadow-uidmap   \
+                       tar             \
+                       xz
+
+
+FROM base AS docker
+
+# renovate: datasource=github-releases depName=moby packageName=moby/moby
+ARG DOCKER_VERSION=28.3.2
 
 RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
         "amd64")   echo "x86_64"  ;; \
@@ -13,23 +29,22 @@ RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
         "arm/v6")  echo "armhf"   ;; \
     esac) && \
     \
-    wget -4 https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-${DOCKER_VERSION}.tgz \
-         -O /tmp/docker.tgz && \
-    wget -4 https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-rootless-extras-${DOCKER_VERSION}.tgz \
-         -O /tmp/docker-rootless-extras.tgz && \
+    curl -Lo /tmp/docker.tgz \
+         https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-${DOCKER_VERSION}.tgz \
+         && \
+    curl -Lo /tmp/docker-rootless-extras.tgz \
+         https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-rootless-extras-${DOCKER_VERSION}.tgz \
+         && \
     \
     mkdir -p /docker && \
     tar -xvzf /tmp/docker.tgz -C /docker --strip-components 1 && \
     tar -xvzf /tmp/docker-rootless-extras.tgz -C /docker --strip-components 1
 
 
-FROM alpine:3.22.0 AS forgejo-runner
+FROM base AS forgejo-runner
 
 # renovate: datasource=gitea-releases depName=forgejo-runner packageName=forgejo/runner registryUrl=https://code.forgejo.org/
 ARG FORGEJO_RUNNER_VERSION=6.4.0
-
-ARG TARGETARCH
-ARG TARGETOS
 
 RUN ACT_TARGETARCH=$(case ${TARGETARCH} in \
         "amd64")   echo "amd64"  ;; \
@@ -37,11 +52,11 @@ RUN ACT_TARGETARCH=$(case ${TARGETARCH} in \
     esac) && \
     \
     mkdir -p /act && \
-    wget -4 https://code.forgejo.org/forgejo/runner/releases/download/v${FORGEJO_RUNNER_VERSION}/forgejo-runner-${FORGEJO_RUNNER_VERSION}-${TARGETOS}-${ACT_TARGETARCH} \
-         -O /act/forgejo-runner
+    curl -Lo /act/forgejo-runner \
+         https://code.forgejo.org/forgejo/runner/releases/download/v${FORGEJO_RUNNER_VERSION}/forgejo-runner-${FORGEJO_RUNNER_VERSION}-${TARGETOS}-${ACT_TARGETARCH}
 
 
-FROM alpine:3.22.0 AS s6-overlay
+FROM base AS s6-overlay
 
 # renovate: datasource=github-releases depName=s6-overlay packageName=just-containers/s6-overlay
 ARG S6_OVERLAY_VERSION=3.2.1.0
@@ -55,17 +70,19 @@ RUN S6_TARGETARCH=$(case ${TARGETARCH} in \
         "arm/v6")  echo "armhf"   ;; \
     esac) && \
     \
-    wget -4 https://www.github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
-         -O /tmp/s6-overlay-noarch.tar.xz && \
-    wget -4 https://www.github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_TARGETARCH}.tar.xz \
-         -O /tmp/s6-overlay-${S6_TARGETARCH}.tar.xz && \
+    curl -Lo /tmp/s6-overlay-noarch.tar.xz \
+         https://www.github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz \
+         && \
+    curl -Lo /tmp/s6-overlay-${S6_TARGETARCH}.tar.xz \
+         https://www.github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_TARGETARCH}.tar.xz \
+         && \
     \
     mkdir -p /s6 && \
     tar -C /s6 -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
     tar -C /s6 -Jxpf /tmp/s6-overlay-${S6_TARGETARCH}.tar.xz
 
 
-FROM alpine:3.22.0
+FROM base
 
 # Setup Rootless user
 ENV UID=1000
@@ -93,18 +110,7 @@ COPY --chown=root:rootless \
      --chmod=0750 \
      root/ /
 
-RUN apk add --no-cache bash \
-                       curl \
-                       fuse-overlayfs \
-                       git \
-                       iproute2 \
-                       iptables \
-                       openssl \
-                       pigz \
-                       shadow-uidmap \
-                       xz && \
-    \
-    addgroup -g 2375 -S docker && \
+RUN addgroup -g 2375 -S docker && \
     \
     addgroup -S dockremap && \
     adduser -H -S -G dockremap dockremap && \
