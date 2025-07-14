@@ -1,4 +1,4 @@
-FROM alpine:3.22.0 AS docker
+FROM busybox:1.37.0 AS docker
 
 # renovate: datasource=github-releases depName=moby packageName=moby/moby
 ARG DOCKER_VERSION=28.3.2
@@ -41,7 +41,7 @@ RUN ACT_TARGETARCH=$(case ${TARGETARCH} in \
          -O /act/forgejo-runner
 
 
-FROM alpine:3.22.0 AS s6-overlay
+FROM busybox:1.37.0 AS s6-overlay
 
 # renovate: datasource=github-releases depName=s6-overlay packageName=just-containers/s6-overlay
 ARG S6_OVERLAY_VERSION=3.2.1.0
