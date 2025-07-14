@@ -30,8 +30,8 @@ jobs:
 
     outputs:
       semver: ${{ steps.version.outputs.semver }}
-      semver_minor: ${{ steps.version.outputs.minor }}
-      semver_major: ${{ steps.version.outputs.major }}
+      semver_minor: ${{ steps.version.outputs.semver_minor }}
+      semver_major: ${{ steps.version.outputs.semver_major }}
 
     steps:
       - name: ⤵️ Checkout repository
@@ -69,8 +69,8 @@ jobs:
 
     outputs:
       semver: ${{ steps.version.outputs.semver }}
-      semver_minor: ${{ steps.version.outputs.minor }}
-      semver_major: ${{ steps.version.outputs.major }}
+      semver_minor: ${{ steps.version.outputs.semver_minor }}
+      semver_major: ${{ steps.version.outputs.semver_major }}
 
     steps:
       - name: ⤵️ Checkout repository
@@ -117,7 +117,7 @@ jobs:
         with:
           name: "v${{ needs.forgejo_runner_version.outputs.semver }} (dind ${{ needs.docker_version.outputs.semver }})"
           tag_name: "v${{ needs.forgejo_runner_version.outputs.semver }}-${{ needs.docker_version.outputs.semver }}"
-          # yamllint enable rule:line-length
+        # yamllint enable rule:line-length
 
   build-and-push:
     name: Docker Build and Push Container to registries
@@ -192,7 +192,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/alex3305/forgejo-runner-dind
             org.opencontainers.image.url=https://github.com/alex3305/forgejo-runner-dind
             org.opencontainers.image.vendor=Alex van den Hoogen
-          # yamllint enable rule:line-length
+        # yamllint enable rule:line-length
 
       - name: 👷 Docker Build and push latest
         # yamllint disable-line rule:line-length

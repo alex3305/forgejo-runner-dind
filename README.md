@@ -42,15 +42,19 @@ networks:
 
 ### Environment variables
 
-| Variable                     | Required |               Default               | Description                                                                                             |
-| ---------------------------- | :------: | :---------------------------------: | ------------------------------------------------------------------------------------------------------- |
-| `FORGEJO_INSTANCE_URL`       |   ✅*    |                                     | URL of the Forgejo instance. This is a required variable until registration.                            |
-| `FORGEJO_REGISTRATION_TOKEN` |   ✅*    |                                     | Forgejo Registration token. This is a required variable until registration._                            |
-| `FORGEJO_RUNNER_NAME`        |    ✅    |             _hostname_              | Name of the Forgejo runner. This defaults to the hostname of the container.                             |
+| Variable                     | Required |               Default               | Description |
+| ---------------------------- | :------: | :---------------------------------: | ----------- |
+| `FORGEJO_INSTANCE_URL`       |   ✅*    |                                     | URL of the Forgejo instance. |
+| `FORGEJO_REGISTRATION_TOKEN` |   ✅*    |                                     | Forgejo Registration token. |
+| `FORGEJO_RUNNER_NAME`        |    ✅    |             _hostname_              | Name of the Forgejo runner. |
 | `CONFIG_FILE`                |    ❌    |                                     | The optional config file that is used for this runner. Must be a path that is mounted in the container. |
-| `DOCKER_HOST`                |    ❌    | `unix:///run/user/1000/docker.sock` | The Docker socket that Forgejo Runner connects to.                                                        |
-| `FORGEJO_RUNNER_LABELS`      |    ❌    |                                     | Optional Forgejo runner labels                                                                          |
-| `EXTRA_ARGS`                 |    ❌    |                                     | Optional additional arguments                                                                           |
+| `DOCKER_HOST`                |    ❌    | `unix:///run/user/1000/docker.sock` | The Docker socket that Forgejo Runner connects to. |
+| `DOCKER_LOG_LEVEL`           |    ❌    |               `info`                | The Docker Daemon log level |
+| `FORGEJO_RUNNER_LABELS`      |    ❌    |                                     | Optional Forgejo runner labels |
+| `EXTRA_ARGS`                 |    ❌    |                                     | Optional additional arguments |
+
+> [!IMPORTANT]
+> The variables marked with an **&ast;** are required until the Forgejo Runner is successfully registered.
 
 #### Forgejo Instance URL
 

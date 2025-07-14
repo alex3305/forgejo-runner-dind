@@ -37,4 +37,5 @@ exec s6-notifyoncheck -s 5000 -T 60000 -t 1000 -w 2000 -n 30 \
                           dockerd \
                               --host=$DOCKER_HOST \
                               --storage-driver=fuse-overlayfs \
+                              --log-level=$DOCKER_LOG_LEVEL \
                               --feature cdi=false
