@@ -20,7 +20,7 @@ RUN apk add --no-cache bash            \
 FROM base AS docker
 
 # renovate: datasource=github-releases depName=moby packageName=moby/moby
-ARG DOCKER_VERSION=28.3.3
+ARG DOCKER_VERSION=28.4.0
 
 RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
         "amd64")   echo "x86_64"  ;; \
@@ -44,7 +44,7 @@ RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
 FROM base AS forgejo-runner
 
 # renovate: datasource=gitea-releases depName=forgejo-runner packageName=forgejo/runner registryUrl=https://code.forgejo.org/
-ARG FORGEJO_RUNNER_VERSION=7.0.0
+ARG FORGEJO_RUNNER_VERSION=8.0.1
 
 RUN ACT_TARGETARCH=$(case ${TARGETARCH} in \
         "amd64")   echo "amd64"  ;; \
