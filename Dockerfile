@@ -44,7 +44,7 @@ RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
 FROM base AS forgejo-runner
 
 # renovate: datasource=gitea-releases depName=forgejo-runner packageName=forgejo/runner registryUrl=https://code.forgejo.org/
-ARG FORGEJO_RUNNER_VERSION=8.0.1
+ARG FORGEJO_RUNNER_VERSION=9.0.3
 
 RUN ACT_TARGETARCH=$(case ${TARGETARCH} in \
         "amd64")   echo "amd64"  ;; \
