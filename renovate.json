@@ -4,5 +4,19 @@
     "local>renovate/renovate",
     "local>renovate/renovate:dockerfileAnnotations",
     "schedule:daily"
+  ],
+  "packageRules": [
+    {
+      "description": "Automerge majors",
+      "matchUpdateTypes": ["major"],
+      "automerge": true
+    },
+    {
+      "description": "Workflows and Actions",
+      "groupName": "workflows",
+      "matchFileNames": [".forgejo/**",".gitea/**",".github/**"],
+      "schedule": ["* * * * *"],
+      "addLabels": ["ci", "maintenance"]
+    }
   ]
 }
