@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: ⤵️ Checkout repository
         # yamllint disable-line rule:line-length
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
         with:
           sparse-checkout: Dockerfile
 
@@ -75,7 +75,7 @@ jobs:
     steps:
       - name: ⤵️ Checkout repository
         # yamllint disable-line rule:line-length
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
         with:
           sparse-checkout: Dockerfile
 
@@ -109,7 +109,7 @@ jobs:
 
     steps:
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
 
       - name: 🚀 Create release
         # yamllint disable rule:line-length
@@ -132,7 +132,7 @@ jobs:
     steps:
       - name: ⤵️ Checkout created tag
         # yamllint disable-line rule:line-length
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
 
       - name: 🏗️ Setup qemu
         # yamllint disable-line rule:line-length
@@ -145,21 +145,21 @@ jobs:
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
 
       - name: 🔑 Docker Login to Docker Hub
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
         with:
           registry: docker.io
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 🔑 Docker Login to GHCR Registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
         with:
           registry: ghcr.io
           username: ${{ vars.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
 
       - name: 🔑 Docker Login to Local Container Registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
         with:
           registry: 1d.lol
           username: ${{ vars.LOCAL_PACKAGES_USERNAME }}
