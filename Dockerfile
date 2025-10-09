@@ -20,7 +20,7 @@ RUN apk add --no-cache bash            \
 FROM base AS docker
 
 # renovate: datasource=github-releases depName=moby packageName=moby/moby
-ARG DOCKER_VERSION=28.5.0
+ARG DOCKER_VERSION=28.5.1
 
 RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
         "amd64")   echo "x86_64"  ;; \
