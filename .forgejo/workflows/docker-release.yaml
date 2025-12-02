@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: ⤵️ Checkout repository
         # yamllint disable-line rule:line-length
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           sparse-checkout: Dockerfile
 
@@ -75,7 +75,7 @@ jobs:
     steps:
       - name: ⤵️ Checkout repository
         # yamllint disable-line rule:line-length
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           sparse-checkout: Dockerfile
 
@@ -109,7 +109,7 @@ jobs:
 
     steps:
       - name: ⤵️ Checkout repository
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: 🚀 Create release
         # yamllint disable rule:line-length
@@ -132,7 +132,7 @@ jobs:
     steps:
       - name: ⤵️ Checkout created tag
         # yamllint disable-line rule:line-length
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: 🏗️ Setup qemu
         # yamllint disable-line rule:line-length
