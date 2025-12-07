@@ -137,8 +137,6 @@ jobs:
       - name: 🏗️ Setup qemu
         # yamllint disable-line rule:line-length
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
-        with:
-          platforms: arm64
 
       - name: 🏗️ Set up Docker Buildx
         # yamllint disable-line rule:line-length
