@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exec docker system prune --all --force
+exec docker image prune --all --force
