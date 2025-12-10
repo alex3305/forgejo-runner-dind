@@ -6,13 +6,7 @@ group "release" {
   targets = ["forgejo-runner-dind-rootless-release"]
 }
 
-variable "TAG" {
-  default = "latest"
-}
-
-# variable "FORGEJO_ACT_RUNNER_VERSION" {}
-# variable "CONTAINER_TOOL" {}
-# variable "CONTAINER_TOOL_VERSION" {}
+target "docker-metadata-action" {}
 
 target "base" {
   dockerfile = "dockerfiles/base.Dockerfile"
@@ -46,20 +40,18 @@ target "dind-rootless" {
 target "forgejo-runner-dind-rootless" {
   dockerfile = "forgejo-runner-dind-rootless.Dockerfile"
   contexts = {
-    base                = "target:base",
-    dind-rootless       = "target:dind-rootless",
-    forgejo-act-runner  = "target:forgejo-act-runner",
-    s6-overlay          = "target:s6-overlay",
+    base                = "target:base"
+    dind-rootless       = "target:dind-rootless"
+    forgejo-act-runner  = "target:forgejo-act-runner"
+    s6-overlay          = "target:s6-overlay"
   }
   output = [{type = "cacheonly"}]
 }
 
 target "forgejo-runner-dind-rootless-release" {
-  inherits = ["forgejo-runner-dind-rootless"]
-  tags = [
-    "alex3305/forgejo-runner-dind:${TAG}",
-    "ghcr.io/alex3305/forgejo-runner-dind:${TAG}"
+  inherits = [
+    "docker-metadata-action",
+    "forgejo-runner-dind-rootless"
   ]
   platforms = ["linux/amd64", "linux/arm64"]
-  output = ["type=registry"]
 }

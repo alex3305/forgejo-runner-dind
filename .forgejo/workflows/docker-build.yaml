@@ -36,8 +36,8 @@ jobs:
 
       - name: 👷 Docker Build
         # yamllint disable-line rule:line-length
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        uses: docker/bake-action@v6
         with:
-          context: .
+          files: |
+            ./docker-bake.hcl
           push: false
-          platforms: linux/amd64,linux/arm64
