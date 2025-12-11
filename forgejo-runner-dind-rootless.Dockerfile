@@ -1,5 +1,8 @@
 FROM base
 
+ARG FORGEJO_RUNNER_VERSION
+ARG DOCKER_VERSION
+
 # Setup Rootless user
 ENV UID=1000
 RUN adduser -h /home/rootless -g 'Rootless' -D -u ${UID} rootless
@@ -65,3 +68,7 @@ HEALTHCHECK --interval=15s \
             CMD /command/s6-svstat /var/run/s6-rc/servicedirs/svc-forgejo-runner
 
 ENTRYPOINT ["/init"]
+
+LABEL org.opencontainers.image.title="Forgejo Runner With Docker" \
+      org.opencontainers.image.description="Forgejo act runner with embedded Docker in Docker" \
+      org.opencontainers.image.version="${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION}"

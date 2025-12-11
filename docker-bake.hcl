@@ -1,11 +1,34 @@
+# Docker Bake configuration
+
+# Variables
+variable "FORGEJO_ACT_RUNNER_VERSION" {
+  default = "12.1.2"
+}
+
+variable "DOCKER_VERSION" {
+  default = "28.5.2"
+}
+
+
+# Groups
 group "default" {
-  targets = ["forgejo-runner-dind-rootless"]
+  targets = ["build"]
+}
+
+group "build" {
+  targets = [
+    "build-forgejo-runner-dind-rootless"
+  ]
 }
 
 group "release" {
-  targets = ["forgejo-runner-dind-rootless-release"]
+  targets = [
+    "release-forgejo-runner-dind-rootless"
+  ]
 }
 
+
+# Targets
 target "docker-metadata-action" {}
 
 target "base" {
@@ -26,6 +49,9 @@ target "forgejo-act-runner" {
   contexts = {
     base = "target:base"
   }
+  args = {
+    FORGEJO_RUNNER_VERSION = "${FORGEJO_ACT_RUNNER_VERSION}"
+  }
   output = [{type = "cacheonly"}]
 }
 
@@ -34,10 +60,13 @@ target "dind-rootless" {
   contexts = {
     base = "target:base"
   }
+  args = {
+    DOCKER_VERSION = "${DOCKER_VERSION}"
+  }
   output = [{type = "cacheonly"}]
 }
 
-target "forgejo-runner-dind-rootless" {
+target "build-forgejo-runner-dind-rootless" {
   dockerfile = "forgejo-runner-dind-rootless.Dockerfile"
   contexts = {
     base                = "target:base"
@@ -45,10 +74,14 @@ target "forgejo-runner-dind-rootless" {
     forgejo-act-runner  = "target:forgejo-act-runner"
     s6-overlay          = "target:s6-overlay"
   }
-  output = [{type = "cacheonly"}]
+  args = {
+    FORGEJO_RUNNER_VERSION  = "${FORGEJO_ACT_RUNNER_VERSION}"
+    DOCKER_VERSION          = "${DOCKER_VERSION}"
+  }
+  tags = ["forgejo-runner-dind-rootless"]
 }
 
-target "forgejo-runner-dind-rootless-release" {
+target "release-forgejo-runner-dind-rootless" {
   inherits = [
     "docker-metadata-action",
     "forgejo-runner-dind-rootless"

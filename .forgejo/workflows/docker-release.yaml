@@ -14,6 +14,12 @@ on:
       - LICENSE
       - README.md
   workflow_dispatch:
+    inputs:
+      push_images:
+        description: "Push Images"
+        default: true
+        required: true
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}
@@ -77,7 +83,7 @@ jobs:
         # yamllint disable-line rule:line-length
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
-          sparse-checkout: Dockerfile
+          sparse-checkout: dockerfiles/forgejo-act-runner.Dockerfile
 
       - name: Get Forgejo Runner version
         id: version
@@ -129,6 +135,11 @@ jobs:
       contents: read
       packages: write
 
+    strategy:
+      matrix:
+        target:
+          - forgejo-runner-dind-rootless-release
+
     steps:
       - name: ⤵️ Checkout created tag
         # yamllint disable-line rule:line-length
@@ -137,8 +148,6 @@ jobs:
       - name: 🏗️ Setup qemu
         # yamllint disable-line rule:line-length
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
-        with:
-          platforms: arm64
 
       - name: 🏗️ Set up Docker Buildx
         # yamllint disable-line rule:line-length
@@ -189,24 +198,15 @@ jobs:
             type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_major }}-dind-${{ needs.docker_version.outputs.semver }},enable={{is_default_branch}}
             type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_major }}-dind-${{ needs.docker_version.outputs.semver_minor }},enable={{is_default_branch}}
             type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_major }}-dind-${{ needs.docker_version.outputs.semver_major }},enable={{is_default_branch}}
-          labels: |
-            org.opencontainers.image.title=Forgejo Runner With Docker
-            org.opencontainers.image.description=Forgejo act runner with embedded Docker in Docker
-            org.opencontainers.image.authors=Alex van den Hoogen
-            org.opencontainers.image.documentation=https://github.com/alex3305/forgejo-runner-dind
-            org.opencontainers.image.licenses=MIT
-            org.opencontainers.image.source=https://github.com/alex3305/forgejo-runner-dind
-            org.opencontainers.image.url=https://github.com/alex3305/forgejo-runner-dind
-            org.opencontainers.image.vendor=Alex van den Hoogen
         # yamllint enable rule:line-length
 
       - name: 👷 Docker Build and push latest
         # yamllint disable-line rule:line-length
         uses: docker/bake-action@v6
         with:
-          push: true
+          push: ${{ inputs.push_images == true }}
           files: |
             ./docker-bake.hcl
             cwd://${{ steps.meta.outputs.bake-file-tags }}
             cwd://${{ steps.meta.outputs.bake-file-labels }}
-          target: release
+          target: ${{ matrix.target }}
