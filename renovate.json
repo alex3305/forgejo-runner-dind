@@ -18,5 +18,15 @@
       "schedule": ["* * * * *"],
       "addLabels": ["ci", "maintenance"]
     }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Match Renovate annotations in Docker Bake HCL files",
+      "fileMatch": ["(^|/)(docker-bake\\.hcl)$"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+?)(?: depName=(?<depName>.+?))? packageName=(?<packageName>.+?)(?: versioning=(?<versioning>[a-z-]+?))?(?: registryUrl=(?<registryUrl>.+?))?\\s.+?_VERSION.+?=.+?\"?(?<currentValue>.+?)\"?\\s"
+      ]
+    }
   ]
 }

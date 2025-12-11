@@ -1,12 +1,34 @@
 # Docker Bake configuration
 
+# Constants that are managed by Renovate
+# renovate: datasource=github-releases depName=moby packageName=moby/moby
+DOCKER_VERSION = "28.5.2"
+# renovate: datasource=gitea-releases depName=forgejo-runner packageName=forgejo/runner registryUrl=https://code.forgejo.org/
+FORGEJO_ACT_RUNNER_VERSION = "12.1.2"
+# renovate: datasource=github-releases depName=s6-overlay packageName=just-containers/s6-overlay
+S6_OVERLAY_VERSION = "3.2.1.0"
+
+
 # Variables
 variable "FORGEJO_ACT_RUNNER_VERSION" {
-  default = "12.1.2"
+  validation {
+    condition = FORGEJO_ACT_RUNNER_VERSION != ""
+    error_message = "Forgejo act Runner version must not be empty"
+  }
 }
 
 variable "DOCKER_VERSION" {
-  default = "28.5.2"
+  validation {
+    condition = DOCKER_VERSION != ""
+    error_message = "Docker version must not be empty"
+  }
+}
+
+variable "S6_OVERLAY_VERSION" {
+  validation {
+    condition = S6_OVERLAY_VERSION != ""
+    error_message = "S6 Overlay version must not be empty"
+  }
 }
 
 
@@ -32,42 +54,33 @@ group "release" {
 target "docker-metadata-action" {}
 
 target "base" {
-  dockerfile = "dockerfiles/base.Dockerfile"
-  output = [{type = "cacheonly"}]
+  dockerfile  = "dockerfiles/base.Dockerfile"
+  output      = [ {type = "cacheonly"} ]
 }
 
 target "s6-overlay" {
-  dockerfile = "dockerfiles/s6-overlay.Dockerfile"
-  contexts = {
-    base = "target:base"
-  }
-  output = [{type = "cacheonly"}]
+  dockerfile  = "dockerfiles/s6-overlay.Dockerfile"
+  contexts    = {base = "target:base"}
+  args        = {S6_OVERLAY_VERSION = "${S6_OVERLAY_VERSION}"}
+  output      = [ {type = "cacheonly"} ]
 }
 
 target "forgejo-act-runner" {
-  dockerfile = "dockerfiles/forgejo-act-runner.Dockerfile"
-  contexts = {
-    base = "target:base"
-  }
-  args = {
-    FORGEJO_RUNNER_VERSION = "${FORGEJO_ACT_RUNNER_VERSION}"
-  }
-  output = [{type = "cacheonly"}]
+  dockerfile  = "dockerfiles/forgejo-act-runner.Dockerfile"
+  contexts    = {base = "target:base"}
+  args        = {FORGEJO_RUNNER_VERSION = "${FORGEJO_ACT_RUNNER_VERSION}"}
+  output      = [ {type = "cacheonly"} ]
 }
 
 target "dind-rootless" {
-  dockerfile = "dockerfiles/dind-rootless.Dockerfile"
-  contexts = {
-    base = "target:base"
-  }
-  args = {
-    DOCKER_VERSION = "${DOCKER_VERSION}"
-  }
-  output = [{type = "cacheonly"}]
+  dockerfile  = "dockerfiles/dind-rootless.Dockerfile"
+  contexts    = {base = "target:base"}
+  args        = {DOCKER_VERSION = "${DOCKER_VERSION}"}
+  output      = [ {type = "cacheonly"} ]
 }
 
 target "build-forgejo-runner-dind-rootless" {
-  dockerfile = "forgejo-runner-dind-rootless.Dockerfile"
+  dockerfile  = "forgejo-runner-dind-rootless.Dockerfile"
   contexts = {
     base                = "target:base"
     dind-rootless       = "target:dind-rootless"
@@ -82,9 +95,21 @@ target "build-forgejo-runner-dind-rootless" {
 }
 
 target "release-forgejo-runner-dind-rootless" {
+  name = "release-${sha1(registry)}"
   inherits = [
     "docker-metadata-action",
-    "forgejo-runner-dind-rootless"
+    "build-forgejo-runner-dind-rootless"
   ]
   platforms = ["linux/amd64", "linux/arm64"]
+  matrix = {
+    registry = [
+      "docker.io/alex3305/forgejo-runner-dind",
+      "ghcr.io/alex3305/forgejo-runner-dind",
+      "1d.lol/containers/forgejo-runner-dind"
+    ]
+  }
+  tags = [
+    "${registry}:latest",
+    "${registry}:${FORGEJO_ACT_RUNNER_VERSION}-dind-${DOCKER_VERSION}"
+  ]
 }

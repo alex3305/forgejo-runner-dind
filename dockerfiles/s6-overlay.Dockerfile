@@ -1,9 +1,7 @@
 FROM base AS s6-overlay
 
 ARG TARGETARCH
-
-# renovate: datasource=github-releases depName=s6-overlay packageName=just-containers/s6-overlay
-ARG S6_OVERLAY_VERSION=3.2.1.0
+ARG S6_OVERLAY_VERSION
 
 RUN S6_TARGETARCH=$(case ${TARGETARCH} in \
         "amd64")   echo "x86_64"  ;; \

@@ -2,9 +2,7 @@ FROM base AS dind-rootless
 
 ARG TARGETARCH
 ARG TARGETOS
-
-# renovate: datasource=github-releases depName=moby packageName=moby/moby
-ARG DOCKER_VERSION=28.5.2
+ARG DOCKER_VERSION
 
 RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
         "amd64")   echo "x86_64"  ;; \
