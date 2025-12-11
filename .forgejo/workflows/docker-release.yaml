@@ -9,10 +9,12 @@ on:
     paths-ignore:
       - .forgejo/**
       - .vscode/**
+      - .editorconfig
       - .gitignore
       - .yamllint
       - LICENSE
       - README.md
+      - renovate.json
   workflow_dispatch:
     inputs:
       push_images:
@@ -26,87 +28,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  docker_version:
-    name: Get Docker version from Dockerfile
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-
-    permissions:
-      contents: read
-
-    outputs:
-      semver: ${{ steps.version.outputs.semver }}
-      semver_minor: ${{ steps.version.outputs.semver_minor }}
-      semver_major: ${{ steps.version.outputs.semver_major }}
-
-    steps:
-      - name: ⤵️ Checkout repository
-        # yamllint disable-line rule:line-length
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-        with:
-          sparse-checkout: Dockerfile
-
-      - name: Get Docker version
-        id: version
-        shell: bash
-        run: |
-          VERSION=$(grep -i "^ARG ${NAME}_VERSION=" Dockerfile | cut -d= -f2)
-
-          if [ -z "${VERSION}" ]; then
-            echo "Could not retrieve version for $NAME"
-            exit 1
-          fi
-
-          echo "Found $NAME version $VERSION"
-
-          echo "semver=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "semver_minor=${VERSION%.*}" >> "$GITHUB_OUTPUT"
-          echo "semver_major=${VERSION%.*.*}" >> "$GITHUB_OUTPUT"
-        env:
-          NAME: docker
-
-  forgejo_runner_version:
-    name: Get Forgejo Runner version from Dockerfile
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-
-    permissions:
-      contents: read
-
-    outputs:
-      semver: ${{ steps.version.outputs.semver }}
-      semver_minor: ${{ steps.version.outputs.semver_minor }}
-      semver_major: ${{ steps.version.outputs.semver_major }}
-
-    steps:
-      - name: ⤵️ Checkout repository
-        # yamllint disable-line rule:line-length
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-        with:
-          sparse-checkout: dockerfiles/forgejo-act-runner.Dockerfile
-
-      - name: Get Forgejo Runner version
-        id: version
-        shell: bash
-        run: |
-          VERSION=$(grep -i "^ARG ${NAME}_VERSION=" Dockerfile | cut -d= -f2)
-
-          if [ -z "${VERSION}" ]; then
-            echo "Could not retrieve version for $NAME"
-            exit 1
-          fi
-
-          echo "Found $NAME version $VERSION"
-
-          echo "semver=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "semver_minor=${VERSION%.*}" >> "$GITHUB_OUTPUT"
-          echo "semver_major=${VERSION%.*.*}" >> "$GITHUB_OUTPUT"
-        env:
-          NAME: forgejo_runner
-
   release:
     name: Release
-    needs: [docker_version, forgejo_runner_version]
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -116,29 +39,37 @@ jobs:
     steps:
       - name: ⤵️ Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          sparse-checkout: docker-bake.hcl
+
+      - name: Get Forgejo Runner version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(grep -i "^FORGEJO_RUNNER_VERSION" docker-bake.hcl |
+                    cut -d " " -f3 |
+                    tr -d '"')
+          
+          echo "Resolved Forgejo Runner version - $VERSION"
+          echo "semver=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 🚀 Create release
         # yamllint disable rule:line-length
         uses: akkuman/gitea-release-action@fe8e0322804b48e34e3bddbbf6335bd2b1046eb7 # v1
         with:
-          name: "v${{ needs.forgejo_runner_version.outputs.semver }} (dind ${{ needs.docker_version.outputs.semver }})"
-          tag_name: "v${{ needs.forgejo_runner_version.outputs.semver }}-${{ needs.docker_version.outputs.semver }}"
+          name: "v${{ steps.version.outputs.semver }}"
+          tag_name: "v${{ steps.version.outputs.semver }}"
         # yamllint enable rule:line-length
 
   build-and-push:
     name: Docker Build and Push Container to registries
     runs-on: ubuntu-latest
-    needs: [docker_version, forgejo_runner_version, release]
+    needs: [release]
     timeout-minutes: 30
 
     permissions:
       contents: read
       packages: write
-
-    strategy:
-      matrix:
-        target:
-          - forgejo-runner-dind-rootless-release
 
     steps:
       - name: ⤵️ Checkout created tag
@@ -174,32 +105,6 @@ jobs:
           username: ${{ vars.LOCAL_PACKAGES_USERNAME }}
           password: ${{ secrets.LOCAL_PACKAGES_TOKEN }}
 
-      - name: 💄 Prepare Docker Metadata
-        id: meta
-        # yamllint disable rule:line-length
-        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
-        with:
-          images: |
-            ${{ vars.DOCKERHUB_USERNAME }}/forgejo-runner-dind
-            ghcr.io/${{ vars.GHCR_USERNAME }}/forgejo-runner-dind
-            1d.lol/${{ github.repository }}
-          tags: |
-            type=ref,event=branch
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver }}-dind-${{ needs.docker_version.outputs.semver }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver }}-dind-${{ needs.docker_version.outputs.semver_minor }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver }}-dind-${{ needs.docker_version.outputs.semver_major }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_minor }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_minor }}-dind-${{ needs.docker_version.outputs.semver }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_minor }}-dind-${{ needs.docker_version.outputs.semver_minor }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_minor }}-dind-${{ needs.docker_version.outputs.semver_major }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_major }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_major }}-dind-${{ needs.docker_version.outputs.semver }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_major }}-dind-${{ needs.docker_version.outputs.semver_minor }},enable={{is_default_branch}}
-            type=raw,value=${{ needs.forgejo_runner_version.outputs.semver_major }}-dind-${{ needs.docker_version.outputs.semver_major }},enable={{is_default_branch}}
-        # yamllint enable rule:line-length
-
       - name: 👷 Docker Build and push latest
         # yamllint disable-line rule:line-length
         uses: docker/bake-action@v6
@@ -207,6 +112,4 @@ jobs:
           push: ${{ inputs.push_images == true }}
           files: |
             ./docker-bake.hcl
-            cwd://${{ steps.meta.outputs.bake-file-tags }}
-            cwd://${{ steps.meta.outputs.bake-file-labels }}
-          target: ${{ matrix.target }}
+          target: release

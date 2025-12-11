@@ -70,5 +70,5 @@ HEALTHCHECK --interval=15s \
 ENTRYPOINT ["/init"]
 
 LABEL org.opencontainers.image.title="Forgejo Runner With Docker" \
-      org.opencontainers.image.description="Forgejo act runner with embedded Docker in Docker" \
+      org.opencontainers.image.description="Forgejo Runner with embedded Docker in Docker" \
       org.opencontainers.image.version="${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION}"

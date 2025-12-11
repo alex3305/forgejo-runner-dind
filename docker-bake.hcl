@@ -4,17 +4,30 @@
 # renovate: datasource=github-releases depName=moby packageName=moby/moby
 DOCKER_VERSION = "28.5.2"
 # renovate: datasource=gitea-releases depName=forgejo-runner packageName=forgejo/runner registryUrl=https://code.forgejo.org/
-FORGEJO_ACT_RUNNER_VERSION = "12.1.2"
+FORGEJO_RUNNER_VERSION = "12.1.2"
 # renovate: datasource=github-releases depName=s6-overlay packageName=just-containers/s6-overlay
 S6_OVERLAY_VERSION = "3.2.1.0"
 
 
 # Variables
-variable "FORGEJO_ACT_RUNNER_VERSION" {
+variable "FORGEJO_RUNNER_VERSION" {
   validation {
-    condition = FORGEJO_ACT_RUNNER_VERSION != ""
-    error_message = "Forgejo act Runner version must not be empty"
+    condition = FORGEJO_RUNNER_VERSION != ""
+    error_message = "Forgejo Runner version must not be empty"
   }
+
+  validation {
+    condition = FORGEJO_RUNNER_VERSION == regex("\\d.*\\.\\d.*\\.\\d.*", FORGEJO_RUNNER_VERSION)
+    error_message = "Forgejo Runner version must be in SemVer format"
+  }
+}
+
+variable "FORGEJO_RUNNER_VERSION_MAJOR" {
+  default = "${regex("(\\d.*)\\.\\d.*\\.\\d.*", FORGEJO_RUNNER_VERSION)[0]}"
+}
+
+variable "FORGEJO_RUNNER_VERSION_MINOR" {
+  default = "${regex("(\\d.*\\.\\d.*)\\.\\d.*", FORGEJO_RUNNER_VERSION)[0]}"
 }
 
 variable "DOCKER_VERSION" {
@@ -22,6 +35,19 @@ variable "DOCKER_VERSION" {
     condition = DOCKER_VERSION != ""
     error_message = "Docker version must not be empty"
   }
+
+  validation {
+    condition = DOCKER_VERSION == regex("\\d.*\\.\\d.*\\.\\d.*", DOCKER_VERSION)
+    error_message = "Docker version must be in SemVer format"
+  }
+}
+
+variable "DOCKER_VERSION_MAJOR" {
+  default = "${regex("(\\d.*)\\.\\d.*\\.\\d.*", DOCKER_VERSION)[0]}"
+}
+
+variable "DOCKER_VERSION_MINOR" {
+  default = "${regex("(\\d.*\\.\\d.*)\\.\\d.*", DOCKER_VERSION)[0]}"
 }
 
 variable "S6_OVERLAY_VERSION" {
@@ -68,7 +94,7 @@ target "s6-overlay" {
 target "forgejo-act-runner" {
   dockerfile  = "dockerfiles/forgejo-act-runner.Dockerfile"
   contexts    = {base = "target:base"}
-  args        = {FORGEJO_RUNNER_VERSION = "${FORGEJO_ACT_RUNNER_VERSION}"}
+  args        = {FORGEJO_RUNNER_VERSION = "${FORGEJO_RUNNER_VERSION}"}
   output      = [ {type = "cacheonly"} ]
 }
 
@@ -88,7 +114,7 @@ target "build-forgejo-runner-dind-rootless" {
     s6-overlay          = "target:s6-overlay"
   }
   args = {
-    FORGEJO_RUNNER_VERSION  = "${FORGEJO_ACT_RUNNER_VERSION}"
+    FORGEJO_RUNNER_VERSION  = "${FORGEJO_RUNNER_VERSION}"
     DOCKER_VERSION          = "${DOCKER_VERSION}"
   }
   tags = ["forgejo-runner-dind-rootless"]
@@ -110,6 +136,20 @@ target "release-forgejo-runner-dind-rootless" {
   }
   tags = [
     "${registry}:latest",
-    "${registry}:${FORGEJO_ACT_RUNNER_VERSION}-dind-${DOCKER_VERSION}"
+    "${registry}:${FORGEJO_RUNNER_VERSION}",
+    "${registry}:${FORGEJO_RUNNER_VERSION}-dind",
+    "${registry}:${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION}",
+    "${registry}:${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION_MINOR}",
+    "${registry}:${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION_MAJOR}",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind-${DOCKER_VERSION}",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind-${DOCKER_VERSION_MINOR}",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind-${DOCKER_VERSION_MAJOR}",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind-${DOCKER_VERSION}",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind-${DOCKER_VERSION_MINOR}",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind-${DOCKER_VERSION_MAJOR}",
   ]
 }
