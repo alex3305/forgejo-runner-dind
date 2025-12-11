@@ -49,17 +49,16 @@ jobs:
           VERSION=$(grep -i "^FORGEJO_RUNNER_VERSION" docker-bake.hcl |
                     cut -d " " -f3 |
                     tr -d '"')
-          
+
           echo "Resolved Forgejo Runner version - $VERSION"
           echo "semver=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: 🚀 Create release
-        # yamllint disable rule:line-length
+        # yamllint disable-line rule:line-length
         uses: akkuman/gitea-release-action@fe8e0322804b48e34e3bddbbf6335bd2b1046eb7 # v1
         with:
           name: "v${{ steps.version.outputs.semver }}"
           tag_name: "v${{ steps.version.outputs.semver }}"
-        # yamllint enable rule:line-length
 
   build-and-push:
     name: Docker Build and Push Container to registries
