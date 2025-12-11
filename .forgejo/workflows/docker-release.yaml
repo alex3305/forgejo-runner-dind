@@ -56,7 +56,7 @@ jobs:
       - name: 🚀 Create release
         # yamllint disable-line rule:line-length
         uses: akkuman/gitea-release-action@fe8e0322804b48e34e3bddbbf6335bd2b1046eb7 # v1
-        if: ${{ inputs.push_images == true }}
+        if: ${{ github.event_name == 'push' || inputs.push_images == true }}
         with:
           name: "v${{ steps.version.outputs.semver }}"
           tag_name: "v${{ steps.version.outputs.semver }}"
@@ -109,7 +109,7 @@ jobs:
         # yamllint disable-line rule:line-length
         uses: docker/bake-action@v6
         with:
-          push: ${{ inputs.push_images == true }}
+          push: ${{ github.event_name == 'push' || inputs.push_images == true }}
           files: |
             ./docker-bake.hcl
           targets: release
