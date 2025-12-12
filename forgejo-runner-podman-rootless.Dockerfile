@@ -19,7 +19,7 @@ COPY --chown=root:rootless \
      --chmod=0750 \
      ./root/ /
 
-RUN chmod 0555 /etc/crontabs/*
+RUN chmod -R 0555 /etc/crontabs
 
 USER rootless
 

@@ -60,6 +60,7 @@ jobs:
         with:
           name: "v${{ steps.version.outputs.semver }}"
           tag_name: "v${{ steps.version.outputs.semver }}"
+          target_commitish: ${{ github.SHA }}
 
   build-and-push:
     name: Docker Build and Push Container to registries
