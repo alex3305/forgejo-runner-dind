@@ -1,11 +1,11 @@
 <h3 align="center">
   <img src="assets/forgejo-animated.png" alt="Forgejo" width="100">
   <br/><br/>
-  Forgejo runner ❤️ <i>dind</i>
+  Forgejo runner 🚢 <i>all-in-one</i>
 </h3>
 
 <h4 align="center">
-  Container image that combines Forgejo Runner 🏃 with <i>Docker-in-Docker</i> 🐳.
+  Container image that combines Forgejo Runner 🏃 with an embedded container runtime 🐳.
 </h4>
 
 <br/>
@@ -16,16 +16,16 @@ At the start of 2025, I switched from [Gitea](https://about.gitea.com/) to [Forg
 
 When I used Gitea Actions, their Docker-in-Docker image with Gitea Act Runner made things super easy. Despite perhaps a few quirks, it’s a great way to get started. Forgejo didn’t have a similar all-in-one image. Their official [forgejo/runner repository](https://code.forgejo.org/forgejo/runner) includes [examples with multiple containers](https://code.forgejo.org/forgejo/runner/src/branch/main/examples/docker-compose), which work fine, but I preferred something simpler.
 
-So, I built this container as a straightforward starting point: a single Docker-in-Docker image for running Forgejo Actions.
+So, I built this container as a straightforward starting point: a single image for running Forgejo Actions with an embedded container runtime.
 
 ### Features
 
-- All-in-one Forgejo Runner with Docker in Docker image
-- S6 Overlay for service management
+- An **all-in-one Forgejo Runner** with Docker in Docker or Podman image
+- **S6 Overlay** for service management
 - Periodic Docker pruning
-- Hosted tool cache support
-- Rootless for improved security
-- Supports amd64 and arm64 architectures
+- **Hosted tool cache** support
+- **Rootless** for improved security
+- Supports **amd64** and **arm64** architectures
 
 ## Usage
 
@@ -34,26 +34,42 @@ Getting started is the easiest with Docker Compose. To get started you'll need a
 - A Forgejo Instance URL (preferably https)
 - A Forgejo Actions Registration Token
 
-### Minimal Docker Compose
+### Quick Start with Compose
 
-This is a minimal setup that is only recommended for testing.
+This is a quick start setup with default configuration.
 
 ```yaml
 services:
   forgejo-runner:
+    container_name: forgejo-runner-dind
     image: alex3305/forgejo-runner-dind:latest
+    restart: on-failure:5
     privileged: true
-    network:
-      internal:
     volumes:
-      ~/forgejo-runner:/config
+      - ~/forgejo-runner:/config
+      - cache:/home/rootless/.cache/actcache
+      - toolcache:/home/rootless/.cache/toolcache
+      - docker:/home/rootless/.local/share/docker
     environment:
       FORGEJO_INSTANCE_URL: https://forgejo.example.com
       FORGEJO_REGISTRATION_TOKEN: JLcy4PhU8wMBmt2mpu5BmW1OqDVlojtPzmQl9mdC
+
+volumes:
+  cache:
+    name: forgejo-runner-cache
+
+  toolcache:
+    name: forgejo-runner-tool-cache
+
+  docker:
+    name: forgejo-runner-docker-cache
 ```
 
 > [!NOTE]
 > Privileged mode is required for Docker in Docker to function properly. This is explained in [docker-library/docker#151](https://github.com/docker-library/docker/issues/151#issuecomment-483185972) and [docker-library/docker#281](https://github.com/docker-library/docker/issues/281#issuecomment-744766015). However this is still a security issue thats need to treated appropriately.
+
+> [!TIP]
+> There is also a podman variant image that is equally as usable!
 
 ## Configuration
 
@@ -207,7 +223,7 @@ services:
       internal:
     volumes:
       ~/forgejo-runner:/config
-      toolcache:/opt/hostedtoolcache
+      toolcache:/home/rootless/.cache/toolcache
 
 volumes:
   toolcache:
@@ -216,16 +232,81 @@ volumes:
 
 ## Development
 
-Building the container image is done with BuildKit:
+Building the container image is done with BuildKit and Bake:
 
 ```bash
-docker buildx build . -t forgejo-runner-dind
+docker buildx bake
 ```
 
 After which testing can be done by starting the created container image:
 
 ```bash
-docker run --rm -it --privileged forgejo-runner-dind
+# Docker in Docker variant
+docker run --rm -it --privileged forgejo-runner-dind-rootless:latest
+
+# Podman variant
+docker run --rm -it --privileged forgejo-runner-podman-rootless:latest
+```
+
+### Cross platform compilation
+
+To build this image cross platform, the necessary binfmt_misc kernel modules
+are necessary. Those can easily be installed with the 
+[tonistiigi/binfmt](https://github.com/tonistiigi/binfmt) container image:
+
+```bash
+docker run --privileged --rm tonistiigi/binfmt --install all
+```
+
+This can also be tested with the same image or by running an alternative
+platform (ie. arm64):
+
+```bash
+# Outputs the current supported platforms
+docker run --privileged --rm tonistiigi/binfmt
+
+# Should return the kernel version
+docker run --rm --platform linux/arm64 alpine uname -a
+```
+
+It can also be necessary to re-create the Buildkit builder for cross-compilation
+to work. This is also fairly trivial:
+
+```bash
+# Install the required kernel modules
+docker run --privileged --rm tonistiigi/binfmt --install all
+
+# Delete the current builder
+docker buildx rm builder
+
+# Re-create a new builder
+docker buildx create --name builder --driver docker-container --use
+```
+
+### Release
+
+Releases are also done with Docker Bake, but with the release profile.
+
+```bash
+docker buildx bake release
+```
+
+When a release is made the images are tagged semantically. The tags include
+the following context:
+
+* the SemVer, SemVer Minor and SemVer Major of Forgejo Runner;
+* the image variant;
+* the SemVer, SemVer Minor and SemVer Major of the base image.
+
+A few fictional examples:
+
+```
+10.0.2-dind-5.9.0
+10.0-dind-5.9.0
+10.0-dind-5.9
+10-dind-5.9.0
+10-dind-5.9
+10-dind-5
 ```
 
 ### Running a minimal container
