@@ -107,7 +107,7 @@ jobs:
 
       - name: 👷 Docker Build and push latest
         # yamllint disable-line rule:line-length
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@5be5f02ff8819ecd3092ea6b2e6261c31774f2b4 # v6
         with:
           push: ${{ github.event_name == 'push' || inputs.push_images == true }}
           files: |
