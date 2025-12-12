@@ -88,14 +88,14 @@ group "default" {
 group "build" {
   targets = [
     "build-forgejo-runner-dind-rootless",
-    "build-forgejo-runner-podman"
+    "build-forgejo-runner-podman-rootless"
   ]
 }
 
 group "release" {
   targets = [
     "release-forgejo-runner-dind-rootless",
-    "release-forgejo-runner-podman"
+    "release-forgejo-runner-podman-rootless"
   ]
 }
 
@@ -147,7 +147,10 @@ target "build-forgejo-runner-dind-rootless" {
     FORGEJO_RUNNER_VERSION  = "${FORGEJO_RUNNER_VERSION}"
     DOCKER_VERSION          = "${DOCKER_VERSION}"
   }
-  tags = ["forgejo-runner-dind-rootless:latest"]
+  tags = [
+    "forgejo-runner-dind:latest",
+    "forgejo-runner-dind-rootless:latest"
+  ]
 }
 
 target "release-forgejo-runner-dind-rootless" {
@@ -184,7 +187,7 @@ target "release-forgejo-runner-dind-rootless" {
   ]
 }
 
-target "build-forgejo-runner-podman" {
+target "build-forgejo-runner-podman-rootless" {
   dockerfile  = "forgejo-runner-podman-rootless.Dockerfile"
   contexts = {
     podman-rootless     = "target:podman-rootless"
@@ -195,14 +198,17 @@ target "build-forgejo-runner-podman" {
     FORGEJO_RUNNER_VERSION  = "${FORGEJO_RUNNER_VERSION}"
     PODMAN_VERSION          = "${PODMAN_VERSION}"
   }
-  tags = ["forgejo-runner-podman:latest"]
+  tags = [
+    "forgejo-runner-podman:latest",
+    "forgejo-runner-podman-rootless:latest",
+  ]
 }
 
-target "release-forgejo-runner-dind-rootless" {
+target "release-forgejo-runner-podman-rootless" {
   name = "release-podman-${sha1(registry)}"
   inherits = [
     "docker-metadata-action",
-    "build-forgejo-runner-podman"
+    "build-forgejo-runner-podman-rootless"
   ]
   platforms = ["linux/amd64", "linux/arm64"]
   matrix = {
