@@ -8,22 +8,35 @@
   "packageRules": [
     {
       "description": "Automerge majors",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "automerge": true
     },
     {
       "description": "Workflows and Actions",
       "groupName": "workflows",
-      "matchFileNames": [".forgejo/**",".gitea/**",".github/**"],
-      "schedule": ["* * * * *"],
-      "addLabels": ["ci", "maintenance"]
+      "matchFileNames": [
+        ".forgejo/**",
+        ".gitea/**",
+        ".github/**"
+      ],
+      "schedule": [
+        "* * * * *"
+      ],
+      "addLabels": [
+        "ci",
+        "maintenance"
+      ]
     }
   ],
   "customManagers": [
     {
       "customType": "regex",
       "description": "Match Renovate annotations in Docker Bake HCL files",
-      "fileMatch": ["(^|/)(docker-bake\\.hcl)$"],
+      "managerFilePatterns": [
+        "/(^|/)(docker-bake\\.hcl)$/"
+      ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>[a-z-]+?)(?: depName=(?<depName>.+?))? packageName=(?<packageName>.+?)(?: versioning=(?<versioning>[a-z-]+?))?(?: registryUrl=(?<registryUrl>.+?))?\\s.+?_VERSION.+?=.+?\"?(?<currentValue>.+?)\"?\\s"
       ]
