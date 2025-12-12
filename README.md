@@ -67,10 +67,10 @@ A quick overview of the available environment variables.
 | ---------------------------- | :------: | :---------------------------------: |
 | `FORGEJO_INSTANCE_URL`       |    ☑️    |                                     |
 | `FORGEJO_REGISTRATION_TOKEN` |    ☑️    |                                     |
+| `LOG_LEVEL`                  |    ☑️    |               `info`                |
 | `FORGEJO_RUNNER_NAME`        |    ❌    |             _hostname_              |
 | `CONFIG_FILE`                |    ❌    |                                     |
 | `DOCKER_HOST`                |    ❌    | `unix:///run/user/1000/docker.sock` |
-| `DOCKER_LOG_LEVEL`           |    ❌    |               `info`                |
 | `FORGEJO_RUNNER_LABELS`      |    ❌    |                                     |
 | `EXTRA_ARGS`                 |    ❌    |                                     |
 
@@ -103,9 +103,9 @@ This is the Unix socket to the Docker daemon. This value can be modified but is 
 > [!DANGER]
 > IF this value is set incorrectly the container will fail to start.
 
-#### Docker Log Level
+#### Log Level
 
-The Docker Daemon log level. This can be adjusted for testing or when the Docker daemon is too verbose.
+The general log level where applicable. This can be adjusted for testing or when the Docker daemon is too verbose.
 
 Allowed values: `debug`, `info`, `warn`, `error`, `fatal`
 

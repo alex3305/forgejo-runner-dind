@@ -4,6 +4,8 @@ ARG TARGETARCH
 ARG TARGETOS
 ARG DOCKER_VERSION
 
+ENV UID=1000
+
 RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
         "amd64")   echo "x86_64"  ;; \
         "arm64")   echo "aarch64" ;; \
@@ -18,6 +20,37 @@ RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
          https://download.docker.com/${TARGETOS}/static/stable/${DOCKER_TARGETARCH}/docker-rootless-extras-${DOCKER_VERSION}.tgz \
          && \
     \
-    mkdir -p /docker && \
-    tar -xvzf /tmp/docker.tgz -C /docker --strip-components 1 && \
-    tar -xvzf /tmp/docker-rootless-extras.tgz -C /docker --strip-components 1
+    mkdir -p /tmp/docker && \
+    tar -xvzf /tmp/docker.tgz -C /tmp/docker --strip-components 1 && \
+    tar -xvzf /tmp/docker-rootless-extras.tgz -C /tmp/docker --strip-components 1 && \
+    \
+    chmod 0750 /tmp/docker/* && \
+    mv /tmp/docker/* /usr/local/bin && \
+    \
+    rm -rf /tmp/* && \
+    \
+    adduser -h /home/rootless -g 'Rootless' -D -u ${UID} rootless && \
+    \
+    addgroup -g 2375 -S docker && \
+    \
+    addgroup -S dockremap && \
+    adduser -H -S -G dockremap dockremap && \
+    echo 'dockremap:165536:65536' >> /etc/subuid && \
+    echo 'dockremap:165536:65536' >> /etc/subgid && \
+    \
+    addgroup rootless docker && \
+    echo 'rootless:100000:65536' >> /etc/subuid && \
+    echo 'rootless:100000:65536' >> /etc/subgid && \
+    \
+    mkdir -p /home/rootless/.local/share/docker \
+             /opt/containerd \
+             /run/docker \
+             /run/containerd \
+             /run/user && \
+    \
+    chmod -R 1777 /run && \
+    chown -R rootless:rootless /opt/containerd \
+                               /var/run
+
+ENV XDG_RUNTIME_DIR="/run/user/${UID}"
+ENV DOCKER_HOST="unix://${XDG_RUNTIME_DIR}/docker.sock"

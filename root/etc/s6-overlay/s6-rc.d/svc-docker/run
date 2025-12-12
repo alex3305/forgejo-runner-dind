@@ -26,6 +26,8 @@ if [ -f /proc/sys/user/max_user_namespaces ] && maxUserns="$(cat /proc/sys/user/
     exit 1
 fi
 
+DOCKER_LOG_LEVEL="${LOG_LEVEL}"
+
 exec s6-notifyoncheck -s 5000 -T 60000 -t 1000 -w 2000 -n 30 \
                       rootlesskit \
                           --net=vpnkit \
