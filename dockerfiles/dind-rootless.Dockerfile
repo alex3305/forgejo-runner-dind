@@ -24,9 +24,7 @@ RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
     tar -xvzf /tmp/docker.tgz -C /tmp/docker --strip-components 1 && \
     tar -xvzf /tmp/docker-rootless-extras.tgz -C /tmp/docker --strip-components 1 && \
     \
-    chmod 0750 /tmp/docker/* && \
     mv /tmp/docker/* /usr/local/bin && \
-    \
     rm -rf /tmp/* && \
     \
     adduser -h /home/rootless -g 'Rootless' -D -u ${UID} rootless && \
@@ -48,8 +46,10 @@ RUN DOCKER_TARGETARCH=$(case ${TARGETARCH} in \
              /run/containerd \
              /run/user && \
     \
+    chmod -R 0750 /usr/local/bin && \
     chmod -R 1777 /run && \
     chown -R rootless:rootless /opt/containerd \
+                               /usr/local/bin \
                                /var/run
 
 ENV XDG_RUNTIME_DIR="/run/user/${UID}"
