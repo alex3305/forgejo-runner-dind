@@ -101,8 +101,6 @@ group "release" {
 
 
 # Targets
-target "docker-metadata-action" {}
-
 target "base" {
   dockerfile  = "dockerfiles/base.Dockerfile"
   output      = [ {type = "cacheonly"} ]
@@ -155,10 +153,7 @@ target "build-forgejo-runner-dind-rootless" {
 
 target "release-forgejo-runner-dind-rootless" {
   name = "release-dind-${sha1(registry)}"
-  inherits = [
-    "docker-metadata-action",
-    "build-forgejo-runner-dind-rootless"
-  ]
+  inherits = ["build-forgejo-runner-dind-rootless"]
   platforms = ["linux/amd64", "linux/arm64"]
   matrix = {
     registry = [
@@ -170,17 +165,14 @@ target "release-forgejo-runner-dind-rootless" {
   tags = [
     "${registry}:latest",
     "${registry}:${FORGEJO_RUNNER_VERSION}",
-    "${registry}:${FORGEJO_RUNNER_VERSION}-dind",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION_MINOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION_MAJOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}",
-    "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind-${DOCKER_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind-${DOCKER_VERSION_MINOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind-${DOCKER_VERSION_MAJOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}",
-    "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind-${DOCKER_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind-${DOCKER_VERSION_MINOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind-${DOCKER_VERSION_MAJOR}",
@@ -206,31 +198,26 @@ target "build-forgejo-runner-podman-rootless" {
 
 target "release-forgejo-runner-podman-rootless" {
   name = "release-podman-${sha1(registry)}"
-  inherits = [
-    "docker-metadata-action",
-    "build-forgejo-runner-podman-rootless"
-  ]
+  inherits = ["build-forgejo-runner-podman-rootless"]
   platforms = ["linux/amd64", "linux/arm64"]
   matrix = {
     registry = [
-      "docker.io/alex3305/forgejo-runner-dind",
-      "ghcr.io/alex3305/forgejo-runner-dind",
-      "1d.lol/containers/forgejo-runner-dind"
+      "docker.io/alex3305/forgejo-runner-podman",
+      "ghcr.io/alex3305/forgejo-runner-podman",
+      "1d.lol/containers/forgejo-runner-podman"
     ]
   }
   tags = [
+    "${registry}:latest",
     "${registry}:${FORGEJO_RUNNER_VERSION}",
-    "${registry}:${FORGEJO_RUNNER_VERSION}-podman",
     "${registry}:${FORGEJO_RUNNER_VERSION}-podman-${PODMAN_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION}-podman-${PODMAN_VERSION_MINOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION}-podman-${PODMAN_VERSION_MAJOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}",
-    "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-podman",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-podman-${PODMAN_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-podman-${PODMAN_VERSION_MINOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-podman-${PODMAN_VERSION_MAJOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}",
-    "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-podman",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-podman-${PODMAN_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-podman-${PODMAN_VERSION_MINOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-podman-${PODMAN_VERSION_MAJOR}",

@@ -68,9 +68,6 @@ volumes:
 > [!NOTE]
 > Privileged mode is required for Docker in Docker to function properly. This is explained in [docker-library/docker#151](https://github.com/docker-library/docker/issues/151#issuecomment-483185972) and [docker-library/docker#281](https://github.com/docker-library/docker/issues/281#issuecomment-744766015). However this is still a security issue thats need to treated appropriately.
 
-> [!TIP]
-> There is also a podman variant image that is equally as usable!
-
 ## Configuration
 
 This section contains the required setup configuration. For usage and more advanced configuration see below.
@@ -295,19 +292,17 @@ When a release is made the images are tagged semantically. The tags include
 the following context:
 
 * the SemVer, SemVer Minor and SemVer Major of Forgejo Runner;
-* the image variant;
-* the SemVer, SemVer Minor and SemVer Major of the base image.
+* (optional) container runtime;
+* (optional) SemVer, SemVer Minor and SemVer Major of the container runtime.
 
-A few fictional examples:
+A few (fictional) examples:
 
-```
-10.0.2-dind-5.9.0
-10.0-dind-5.9.0
-10.0-dind-5.9
-10-dind-5.9.0
-10-dind-5.9
-10-dind-5
-```
+* `10`, SemVer Major
+* `10.2`, SemVer Minor
+* `10.2-dind-5`, SemVer Minor, container runtime with SemVer Major
+* `10-dind-5.9.1`, SemVer Major, container runtime with SemVer
+* `10.2-podman-5.9.1`, SemVer Minor, container runtime with SemVer
+* `10.2.0-podman-5.9.1`, SemVer, container runtime with SemVer
 
 ### Running a minimal container
 
