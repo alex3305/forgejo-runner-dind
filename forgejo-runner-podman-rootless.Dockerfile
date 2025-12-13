@@ -4,7 +4,7 @@ ARG FORGEJO_RUNNER_VERSION
 ARG PODMAN_VERSION
 
 # Add Forgejo Runner from build stage
-COPY --from=forgejo-act-runner \
+COPY --from=forgejo-runner \
      --chown=root:rootless \
      --chmod=0750 \
      /act/forgejo-runner /usr/local/bin/
@@ -19,7 +19,15 @@ COPY --chown=root:rootless \
      --chmod=0750 \
      ./root/ /
 
-RUN chmod -R 0555 /etc/crontabs
+RUN mkdir -p /config \
+             /home/rootless/.local/share/containers \
+             /home/rootless/.cache/actcache \
+             /home/rootless/.cache/toolcache && \
+    \
+    chown -R rootless:rootless /config \
+                               /home/rootless && \
+    \
+    chmod -R 0555 /etc/crontabs
 
 USER rootless
 

@@ -4,7 +4,7 @@ ARG FORGEJO_RUNNER_VERSION
 ARG DOCKER_VERSION
 
 # Add Forgejo Runner from build stage
-COPY --from=forgejo-act-runner \
+COPY --from=forgejo-runner \
      --chown=root:rootless \
      --chmod=0750 \
      /act/forgejo-runner /usr/local/bin/

@@ -113,8 +113,8 @@ target "s6-overlay" {
   output      = [ {type = "cacheonly"} ]
 }
 
-target "forgejo-act-runner" {
-  dockerfile  = "dockerfiles/forgejo-act-runner.Dockerfile"
+target "forgejo-runner" {
+  dockerfile  = "dockerfiles/forgejo-runner.Dockerfile"
   contexts    = {base = "target:base"}
   args        = {FORGEJO_RUNNER_VERSION = "${FORGEJO_RUNNER_VERSION}"}
   output      = [ {type = "cacheonly"} ]
@@ -138,7 +138,7 @@ target "build-forgejo-runner-dind-rootless" {
   dockerfile  = "forgejo-runner-dind-rootless.Dockerfile"
   contexts = {
     dind-rootless       = "target:dind-rootless"
-    forgejo-act-runner  = "target:forgejo-act-runner"
+    forgejo-runner      = "target:forgejo-runner"
     s6-overlay          = "target:s6-overlay"
   }
   args = {
@@ -157,8 +157,6 @@ target "release-forgejo-runner-dind-rootless" {
   platforms = ["linux/amd64", "linux/arm64"]
   matrix = {
     registry = [
-      "docker.io/alex3305/forgejo-runner-dind",
-      "ghcr.io/alex3305/forgejo-runner-dind",
       "1d.lol/containers/forgejo-runner-dind"
     ]
   }
@@ -183,7 +181,7 @@ target "build-forgejo-runner-podman-rootless" {
   dockerfile  = "forgejo-runner-podman-rootless.Dockerfile"
   contexts = {
     podman-rootless     = "target:podman-rootless"
-    forgejo-act-runner  = "target:forgejo-act-runner"
+    forgejo-runner      = "target:forgejo-runner"
     s6-overlay          = "target:s6-overlay"
   }
   args = {
@@ -202,8 +200,6 @@ target "release-forgejo-runner-podman-rootless" {
   platforms = ["linux/amd64", "linux/arm64"]
   matrix = {
     registry = [
-      "docker.io/alex3305/forgejo-runner-podman",
-      "ghcr.io/alex3305/forgejo-runner-podman",
       "1d.lol/containers/forgejo-runner-podman"
     ]
   }

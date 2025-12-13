@@ -1,4 +1,4 @@
-FROM base AS dind-rootless
+FROM base
 
 ARG TARGETARCH
 ARG TARGETOS
