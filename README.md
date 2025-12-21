@@ -53,6 +53,7 @@ services:
     environment:
       FORGEJO_INSTANCE_URL: https://forgejo.example.com
       FORGEJO_REGISTRATION_TOKEN: JLcy4PhU8wMBmt2mpu5BmW1OqDVlojtPzmQl9mdC
+      CONFIG_FILE
 
 volumes:
   cache:
@@ -140,10 +141,10 @@ It is a highly recommended to use a configuration file. It is possible to genera
 docker run --rm -it \
            --entrypoint forgejo-runner \
            alex3305/forgejo-runner-dind:latest \
-           generate-config > config.yml
+           generate-config > config.yaml
 ```
 
-This will create an 'empty' `config.yml` file in your current directory. This file can later be mounted in the container.
+This will create an 'empty' `config.yaml` file in your current directory. This file can later be mounted in the container.
 
 #### Required configuration variables
 
@@ -164,7 +165,7 @@ Caching is setup within the Configuration file. The most basic, functional setup
 ```yaml
 cache:
   enabled: true
-  dir: "/cache/"
+  dir: "/home/rootless/.cache/actcache"
   host: "forgejo-runner"
 ```
 
@@ -194,7 +195,7 @@ and setting an identical value in your configuration file:
 ```yaml
 cache:
   enabled: true
-  dir: "/cache/"
+  dir: "/home/rootless/.cache/actcache"
   host: "my-personal-forgejo-runner"
 ```
 
@@ -204,8 +205,11 @@ It is also possible to use a hosted tool cache. With a hosted tool cache all the
 
 ```yaml
 container:
-  options: "-v /opt/hostedtoolcache:/opt/hostedtoolcache"
-  valid_volumes: ["/opt/hostedtoolcache"]
+  options: "-v /home/rootless/.cache/toolcache:/opt/hostedtoolcache"
+  valid_volumes: [
+    "/home/rootless/.cache/toolcache",
+    "/opt/hostedtoolcache",
+  ]
 ```
 
 I also opt to mount this path to the outside so it survives container upgrades or re-deployments. But this is entirely optional:
@@ -235,7 +239,8 @@ Building the container image is done with BuildKit and Bake:
 docker buildx bake
 ```
 
-After which testing can be done by starting the created container image:
+The output can optionally be saved to your local Docker with the `--load` flag. 
+After building testing can be done by starting the created container image:
 
 ```bash
 # Docker in Docker variant
@@ -320,6 +325,23 @@ Where I have copied my primary runner configuration to test with. It is required
 
 > [!TIP]
 > Bash is available and can be used as an entrypoint
+
+### Testing with a Forgejo instance
+
+As an alternative you can test easily with your existing Forgejo instance:
+
+```bash
+docker run --rm -it --privileged --name forgejo-runner \
+           -v ./.forgejo/config:/config \
+           -e CONFIG_FILE=/config/config.yaml \
+           -e FORGEJO_INSTANCE_URL="https://forgejo.example.com" \
+           -e FORGEJO_REGISTRATION_TOKEN="<INSERT TOKEN HERE>" \
+           -e FORGEJO_RUNNER_NAME="local-test-instance" \
+           forgejo-runner-dind-rootless
+```
+
+> [!NOTE]
+> This example assumes that you have build the images locally
 
 ### Logging
 

@@ -27,8 +27,8 @@ HOSTNAME=$(hostname)
 CONFIG_ARG=""
 EXTRA_ARGS=""
 
-if [[ ! -z "${FORGEJO_CONFIG_FILE}" ]]; then
-  CONFIG_ARG="--config ${FORGEJO_CONFIG_FILE}"
+if [[ ! -z "${CONFIG_FILE}" ]]; then
+  CONFIG_ARG="--config ${CONFIG_FILE}"
 fi
 
 if [[ ! -z "${FORGEJO_RUNNER_LABELS}" ]]; then
