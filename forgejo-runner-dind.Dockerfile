@@ -1,11 +1,9 @@
-ARG DOCKER_VERSION=dind-rootless
+ARG DOCKER_VERSION=dind
 
 FROM docker:${DOCKER_VERSION}
 
 ARG FORGEJO_RUNNER_VERSION
 ARG DOCKER_VERSION
-
-USER root
 
 # Add Forgejo Runner from build stage
 COPY --from=forgejo-runner \
@@ -23,15 +21,7 @@ COPY --chown=root:rootless \
      --chmod=0750 \
      ./root/ /
 
-RUN mkdir -p /config \
-             /home/rootless/.local/share/docker \
-             /home/rootless/.cache/actcache \
-             /home/rootless/.cache/toolcache && \
-    \
-    chown -R rootless:rootless /config \
-                               /home/rootless && \
-    \
-    chmod 0555 /etc/crontabs/*
+RUN mkdir -p /config
 
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 
@@ -43,8 +33,6 @@ HEALTHCHECK --interval=15s         \
 
 ENTRYPOINT ["/init"]
 
-USER rootless
-
 LABEL org.opencontainers.image.title="Forgejo Runner With Docker" \
-      org.opencontainers.image.description="Forgejo Runner with embedded, rootless  Docker in Docker" \
-      org.opencontainers.image.version="${FORGEJO_RUNNER_VERSION}-dind-rootless-${DOCKER_VERSION}"
+      org.opencontainers.image.description="Forgejo Runner with embedded Docker in Docker" \
+      org.opencontainers.image.version="${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION}"

@@ -4,15 +4,9 @@ root = true
 # Unix-style newlines with a newline ending every file
 [*]
 end_of_line = lf
+indent_style = space
+indent_size = 2
 insert_final_newline = true
-
-[*.{hcl,j2,json,md,mjs,sh,ts,yaml,yml}]
-indent_style = space
-indent_size = 2
-
-[.{editorconfig,yamllint}]
-indent_style = space
-indent_size = 2
 
 [rootfs/etc/s6-overlay/s6-rc.d/**]
 insert_final_newline = false
