@@ -1,8 +1,8 @@
-#!/command/with-contenv bash
-# shellcheck shell=bash
+#!/command/with-contenv sh
+# shellcheck shell=sh
 
 CONFIG_ARG=""
-if [[ ! -z "${CONFIG_FILE}" ]]; then
+if [ ! -z "${CONFIG_FILE}" ]; then
   CONFIG_ARG="--config ${CONFIG_FILE}"
 fi
 

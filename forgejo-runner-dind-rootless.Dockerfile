@@ -33,7 +33,12 @@ RUN mkdir -p /config \
     \
     chmod 0555 /etc/crontabs/*
 
-ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+ENV UID=1000
+ENV XDG_RUNTIME_DIR="/run/user/${UID}"
+ENV DOCKER_HOST="unix://${XDG_RUNTIME_DIR}/docker.sock"
+
+# ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+ENV TINI_SUBREAPER=1
 
 HEALTHCHECK --interval=15s         \
             --timeout=5s           \
@@ -47,4 +52,10 @@ USER rootless
 
 LABEL org.opencontainers.image.title="Forgejo Runner With Docker" \
       org.opencontainers.image.description="Forgejo Runner with embedded, rootless  Docker in Docker" \
-      org.opencontainers.image.version="${FORGEJO_RUNNER_VERSION}-dind-rootless-${DOCKER_VERSION}"
+      org.opencontainers.image.version="${FORGEJO_RUNNER_VERSION}-dind-rootless-${DOCKER_VERSION}" \
+      org.opencontainers.image.authors="Alex van den Hoogen" \
+      org.opencontainers.image.documentation="https://github.com/alex3305/forgejo-runner-dind" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/alex3305/forgejo-runner-dind" \
+      org.opencontainers.image.url="https://github.com/alex3305/forgejo-runner-dind" \
+      org.opencontainers.image.vendor="Alex van den Hoogen"

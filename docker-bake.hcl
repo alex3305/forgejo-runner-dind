@@ -152,7 +152,6 @@ target "release-forgejo-runner-dind" {
     ]
   }
   tags = [
-    "${registry}:latest",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-${DOCKER_VERSION_MINOR}",
@@ -181,6 +180,7 @@ target "release-forgejo-runner-dind-rootless" {
     ]
   }
   tags = [
+    "${registry}:latest",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-rootless",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-rootless-${DOCKER_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-rootless-${DOCKER_VERSION_MINOR}",

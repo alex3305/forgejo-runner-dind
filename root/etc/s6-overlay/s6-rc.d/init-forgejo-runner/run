@@ -1,24 +1,24 @@
-#!/command/with-contenv bash
-# shellcheck shell=bash
+#!/command/with-contenv sh
+# shellcheck shell=sh
 
 NC='\033[0m' # No Color
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 ORANGE='\033[0;33m'
 
-if [[ -s /config/.runner ]]; then
+if [ -s /config/.runner ]; then
   printf "forgejo-register: Forgejo Runner already registered!\n${NC}"
   exit 0
 fi
 
 # Continue with registration...
 
-if [[ -z "${FORGEJO_INSTANCE_URL}" ]]; then
+if [ -z "${FORGEJO_INSTANCE_URL}" ]; then
   printf >&2 "forgejo-register: ${RED}Required Forgejo Instance URL parameter missing...\n${NC}"
   exit 126
 fi
 
-if [[ -z "${FORGEJO_REGISTRATION_TOKEN}" ]]; then
+if [ -z "${FORGEJO_REGISTRATION_TOKEN}" ]; then
   printf >&2 "forgejo-register: ${RED}Required Forgejo Registration Token parameter missing...\n${NC}"
   exit 127
 fi
@@ -27,11 +27,11 @@ HOSTNAME=$(hostname)
 CONFIG_ARG=""
 EXTRA_ARGS=""
 
-if [[ ! -z "${FORGEJO_CONFIG_FILE}" ]]; then
+if [ ! -z "${FORGEJO_CONFIG_FILE}" ]; then
   CONFIG_ARG="--config ${FORGEJO_CONFIG_FILE}"
 fi
 
-if [[ ! -z "${FORGEJO_RUNNER_LABELS}" ]]; then
+if [ ! -z "${FORGEJO_RUNNER_LABELS}" ]; then
   EXTRA_ARGS="--labels ${FORGEJO_RUNNER_LABELS}"
 fi
 
@@ -41,7 +41,7 @@ REG_TRY=0
 REG_SUCCESS=0
 REG_ATTEMPTS=${FORGEJO_RUNNER_MAX_REG_ATTEMPTS:-5}
 
-while [[ $REG_SUCCESS -eq 0 ]] && [[ $REG_TRY -lt $REG_ATTEMPTS ]]; do
+while [ $REG_SUCCESS -eq 0 ] && [ $REG_TRY -lt $REG_ATTEMPTS ]; do
   forgejo-runner register \
       --instance "${FORGEJO_INSTANCE_URL}" \
       --token    "${FORGEJO_REGISTRATION_TOKEN}" \
@@ -50,7 +50,7 @@ while [[ $REG_SUCCESS -eq 0 ]] && [[ $REG_TRY -lt $REG_ATTEMPTS ]]; do
 
   cat /tmp/reg.log | grep 'Runner registered successfully' > /dev/null
 
-  if [[ $? -eq 0 ]]; then
+  if [ $? -eq 0 ]; then
     REG_SUCCESS=1
 
     rm -f /tmp/reg.log
@@ -64,12 +64,10 @@ while [[ $REG_SUCCESS -eq 0 ]] && [[ $REG_TRY -lt $REG_ATTEMPTS ]]; do
   fi
 done
 
-if [[ $REG_SUCCESS -eq 1 ]]; then
+if [ $REG_SUCCESS -eq 1 ]; then
   echo -e "forgejo-register: ${GREEN}Forgejo Runner Registration completed successfully!${NC}"
-
   exit 0
 else
-  echo -e >&2 "forgejo-register: ${RED}Could not register Forgejo Runner to $FORGEJO_INSTANCE_URL after $REG_ATTEMPTS attempts.${NC}"
-
+  echo -e >&2 "forgejo-register: ${RED}Could not registr Forgejo Runner to $FORGEJO_INSTANCE_URL after $REG_ATTEMPTS attempts.${NC}"
   exit 1
 fi
