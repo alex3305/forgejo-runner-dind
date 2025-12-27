@@ -181,14 +181,17 @@ target "release-forgejo-runner-dind-rootless" {
   }
   tags = [
     "${registry}:latest",
+    "${registry}:${FORGEJO_RUNNER_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-rootless",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-rootless-${DOCKER_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-rootless-${DOCKER_VERSION_MINOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION}-dind-rootless-${DOCKER_VERSION_MAJOR}",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind-rootless",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind-rootless-${DOCKER_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind-rootless-${DOCKER_VERSION_MINOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MINOR}-dind-rootless-${DOCKER_VERSION_MAJOR}",
+    "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind-rootless",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind-rootless-${DOCKER_VERSION}",
     "${registry}:${FORGEJO_RUNNER_VERSION_MAJOR}-dind-rootless-${DOCKER_VERSION_MINOR}",

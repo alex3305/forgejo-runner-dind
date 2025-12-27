@@ -21,7 +21,7 @@ COPY --chown=root:rootless \
      --chmod=0750 \
      ./root/ /
 
-RUN mkdir -p /config
+RUN mkdir -p /config /root
 
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 
