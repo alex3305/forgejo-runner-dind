@@ -36,6 +36,5 @@ jobs:
         # yamllint disable-line rule:line-length
         uses: docker/bake-action@5be5f02ff8819ecd3092ea6b2e6261c31774f2b4 # v6
         with:
-          files: |
-            ./docker-bake.hcl
+          source: "."
           push: false

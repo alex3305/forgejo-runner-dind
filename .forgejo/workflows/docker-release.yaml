@@ -110,6 +110,5 @@ jobs:
         uses: docker/bake-action@5be5f02ff8819ecd3092ea6b2e6261c31774f2b4 # v6
         with:
           push: ${{ github.event_name == 'push' || inputs.push_images == true }}
-          files: |
-            ./docker-bake.hcl
+          source: "."
           targets: release
