@@ -24,6 +24,7 @@ COPY --chown=root:rootless \
 RUN mkdir -p /config /root
 
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+ENV TINI_SUBREAPER=1
 
 HEALTHCHECK --interval=15s         \
             --timeout=5s           \
