@@ -4,7 +4,7 @@
 # renovate: datasource=github-releases depName=moby packageName=moby/moby
 DOCKER_VERSION = "28.5.2"
 # renovate: datasource=gitea-releases depName=forgejo-runner packageName=forgejo/runner registryUrl=https://code.forgejo.org/
-FORGEJO_RUNNER_VERSION = "12.6.4"
+FORGEJO_RUNNER_VERSION = "12.7.0"
 # renovate: datasource=github-releases depName=s6-overlay packageName=just-containers/s6-overlay
 S6_OVERLAY_VERSION = "3.2.1.0"
 
