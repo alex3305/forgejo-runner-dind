@@ -55,7 +55,7 @@ jobs:
 
       - name: 🚀 Create release
         # yamllint disable-line rule:line-length
-        uses: akkuman/gitea-release-action@fe8e0322804b48e34e3bddbbf6335bd2b1046eb7 # v1
+        uses: akkuman/gitea-release-action@b8d9144f302c68610911db1aaf722708d5c02d94 # v1
         if: ${{ github.event_name == 'push' || inputs.push_images == true }}
         with:
           name: "v${{ steps.version.outputs.semver }}"
