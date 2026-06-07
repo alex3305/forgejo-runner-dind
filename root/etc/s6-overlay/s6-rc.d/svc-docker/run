@@ -2,7 +2,9 @@
 # shellcheck shell=sh
 
 if [ -n "$DOCKER_DAEMON_CONFIG_FILE" ] && [ -f "$DOCKER_DAEMON_CONFIG_FILE" ]; then
+  mkdir -p /etc/docker/
   ln -sf "$DOCKER_DAEMON_CONFIG_FILE" "/etc/docker/daemon.json"
+
   echo "Created symlink /etc/docker/daemon.json from '$DOCKER_DAEMON_CONFIG_FILE'"
 fi
 
