@@ -1,5 +1,10 @@
 #!/command/with-contenv sh
 # shellcheck shell=sh
 
+if [ -n "$DOCKER_DAEMON_CONFIG_FILE" ] && [ -f "$DOCKER_DAEMON_CONFIG_FILE" ]; then
+  ln -sf "$DOCKER_DAEMON_CONFIG_FILE" "/etc/docker/daemon.json"
+  echo "Created symlink /etc/docker/daemon.json from '$DOCKER_DAEMON_CONFIG_FILE'"
+fi
+
 exec s6-notifyoncheck -s 5000 -T 60000 -t 1000 -w 2000 -n 30 \
                       /usr/local/bin/dockerd-entrypoint.sh

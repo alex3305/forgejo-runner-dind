@@ -71,6 +71,7 @@ A quick overview of the available environment variables.
 | `CONFIG_FILE`                |    ❌    |                                     |
 | `DOCKER_HOST`                |    ❌    | `unix:///run/user/1000/docker.sock` |
 | `DOCKER_LOG_LEVEL`           |    ❌    |               `info`                |
+| `DOCKER_DAEMON_CONFIG_FILE`  |    ❌    |                                     |
 | `FORGEJO_RUNNER_LABELS`      |    ❌    |                                     |
 | `EXTRA_ARGS`                 |    ❌    |                                     |
 
@@ -108,6 +109,10 @@ This is the Unix socket to the Docker daemon. This value can be modified but is 
 The Docker Daemon log level. This can be adjusted for testing or when the Docker daemon is too verbose.
 
 Allowed values: `debug`, `info`, `warn`, `error`, `fatal`
+
+#### Docker Daemon Config File
+
+An optional Docker Daemon config file that can be used for custom Docker Daemon configuration.
 
 #### Forgejo Runner Labels
 
